@@ -1174,6 +1174,14 @@ input.sheet-infoWidth {
   width: 60px;
 }
 
+.wod20 .dialog-action-buttons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
 .wod20 .dialog-two-button {
   width: 40%;
   height: 34px;
@@ -1204,10 +1212,26 @@ input.sheet-infoWidth {
   margin-top: 5px;
 }
 
+.wod20 .dialog-mode-buttons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+}
+
 .wod20 .dialog-mode-button {
   width: 20%;
   height: 34px;
   margin-bottom: 5px;
+}
+
+.wod20 .dialog-numbertargets-buttons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
 }
 
 .wod20 .dialog-numbertargets-button,
@@ -1216,6 +1240,14 @@ input.sheet-infoWidth {
   width: 8%;
   height: 34px;
   max-width: 40px;
+}
+
+.wod20 .dialog-difficulty-buttons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
 }
 
 .wod20 .dialog-difficulty-button {

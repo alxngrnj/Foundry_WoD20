@@ -1,13 +1,13 @@
 <div class="clearareaBox">
 
 	<div class="pullLeft" style="width: 33%;">
-		{{#if actor.system.settings.hasvirtue}}		
+		{{#if showVirtues}}		
 			{{> "systems/worldofdarkness/templates/actor/parts/stats_virtue.hbs"}}
 		{{/if}}
-		{{#if actor.system.settings.hasrenown}}
+		{{#if showRenowns}}
 			{{> "systems/worldofdarkness/templates/actor/parts/stats_renown.hbs"}}
 		{{/if}}
-		{{#if actor.system.settings.hasquintessence}}
+		{{#if showQuintessences}}
 			{{> "systems/worldofdarkness/templates/actor/parts/stats_quintessence.hbs"}}
 		{{/if}}
 		{{#if hasGroupedAdvantages}}

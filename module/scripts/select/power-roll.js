@@ -90,24 +90,32 @@ export function getPowerDice1List(itemData) {
   });
 
   if (actor && type === "wod.types.othertraits") {
-    if (actor.system?.settings?.hasrage)
-      list.push({ value: "rage", label: game.i18n.localize("wod.advantages.rage"), group: advGroup });
-    if (actor.system?.settings?.hasgnosis)
-      list.push({ value: "gnosis", label: game.i18n.localize("wod.advantages.gnosis"), group: advGroup });
-    if (actor.system?.settings?.hasglamour)
-      list.push({ value: "glamour", label: game.i18n.localize("wod.advantages.glamour"), group: advGroup });
-    if (actor.system?.settings?.hasglamour)
-      list.push({ value: "glamour", label: game.i18n.localize("wod.advantages.mana"), group: advGroup });
-    if (actor.system?.settings?.hasbanality)
-      list.push({ value: "banality", label: game.i18n.localize("wod.advantages.banality"), group: advGroup });
-    if (actor.system?.settings?.hasnightmare)
-      list.push({ value: "nightmare", label: game.i18n.localize("wod.advantages.nightmare"), group: advGroup });
-    if (actor.system?.settings?.hasfaith)
-      list.push({ value: "faith", label: game.i18n.localize("wod.advantages.faith"), group: advGroup });
-    if (actor.system?.settings?.hastorment)
-      list.push({ value: "torment", label: game.i18n.localize("wod.advantages.torment"), group: advGroup });
-    if (actor.type === CONFIG.worldofdarkness.sheettype.mage)
-      list.push({ value: "arete", label: game.i18n.localize("wod.advantages.arete"), group: advGroup });
+    if (actor.type === "PC") {
+      const advantages = actor.items.filter(item => item.type === "Advantage" && item.system.settings.isvisible);
+      advantages.forEach(advantage => {
+        list.push({ value: advantage.system.id, label: game.i18n.localize(advantage.system.label), group: advGroup });
+      });
+    }
+    else {
+      if (actor.system?.settings?.hasrage)
+        list.push({ value: "rage", label: game.i18n.localize("wod.advantages.rage"), group: advGroup });
+      if (actor.system?.settings?.hasgnosis)
+        list.push({ value: "gnosis", label: game.i18n.localize("wod.advantages.gnosis"), group: advGroup });
+      if (actor.system?.settings?.hasglamour)
+        list.push({ value: "glamour", label: game.i18n.localize("wod.advantages.glamour"), group: advGroup });
+      if (actor.system?.settings?.hasglamour)
+        list.push({ value: "glamour", label: game.i18n.localize("wod.advantages.mana"), group: advGroup });
+      if (actor.system?.settings?.hasbanality)
+        list.push({ value: "banality", label: game.i18n.localize("wod.advantages.banality"), group: advGroup });
+      if (actor.system?.settings?.hasnightmare)
+        list.push({ value: "nightmare", label: game.i18n.localize("wod.advantages.nightmare"), group: advGroup });
+      if (actor.system?.settings?.hasfaith)
+        list.push({ value: "faith", label: game.i18n.localize("wod.advantages.faith"), group: advGroup });
+      if (actor.system?.settings?.hastorment)
+        list.push({ value: "torment", label: game.i18n.localize("wod.advantages.torment"), group: advGroup });
+      if (actor.type === CONFIG.worldofdarkness.sheettype.mage)
+        list.push({ value: "arete", label: game.i18n.localize("wod.advantages.arete"), group: advGroup });
+    }    
 
     if (actor.system?.settings?.haspath)
       list.push({ value: "path", label: game.i18n.localize("wod.advantages.path.headline"), group: advGroup });
@@ -142,7 +150,7 @@ export function getPowerDice1List(itemData) {
     list.push({ value: "essence", label: game.i18n.localize("wod.advantages.essence"), group: advGroup });
   }
 
-  if (type === "wod.types.disciplinepower" /*|| type === "disciplinepathpower"*/ || type === "wod.types.power") {
+  if (type === "wod.types.disciplinepower" || type === "wod.types.power") {
     list.push({ value: "path", label: game.i18n.localize("wod.advantages.path.headline"), group: advGroup });
 
     const virtueGroup = game.i18n.localize("wod.advantages.virtue.headline");

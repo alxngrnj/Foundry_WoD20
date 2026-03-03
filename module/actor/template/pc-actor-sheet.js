@@ -596,7 +596,6 @@ export default class PCActorSheet extends HandlebarsApplicationMixin(foundry.app
 	 */
 	_applySettingsTabState(root) {
 		if (!root?.querySelectorAll) return;
-
 		const activeTab = this._settingsTab || "statsadv";
 
 		// Nav buttons
@@ -620,15 +619,16 @@ export default class PCActorSheet extends HandlebarsApplicationMixin(foundry.app
 	 * @param {HTMLElement} root - The root element to search for health resource steps
 	 */
 	_bindHealthContextMenu(root) {
-		const steps = root.querySelectorAll(".health .resource-value-step");
-		if (!steps?.length) return;
-		steps.forEach(step => {
-			if (step.dataset.healthContextBound) return;
-			step.dataset.healthContextBound = "true";
-			step.addEventListener("contextmenu", (event) => {
-				event.preventDefault();
-				OnSquareCounterClear.call(this, event);
-			});
+		if (root.dataset.healthContextMenuBound) return;
+		root.dataset.healthContextMenuBound = "true";
+		
+		root.addEventListener("contextmenu", (event) => {
+			// Check if the clicked element is a health resource step
+			const target = event.target.closest(".health .resource-value-step");
+			if (!target) return;
+			
+			event.preventDefault();
+			OnSquareCounterClear.call(this, event);
 		});
 	}
 
@@ -970,13 +970,17 @@ export const prepareStatContext = async function (context, actor) {
 
 	context.advantages = context.advantages.sort((a, b) => Number(a.system.settings.order) - Number(b.system.settings.order));
 
+	context.showVirtues = false;
+	context.showRenowns = false;
+	context.showQuintessences = false;	
 	if (actor.system.settings.hasvirtue) {
 
 		context.virtues = actor.items
 								.filter(item => item.type === "Advantage" && item.system.group === 'virtue' && item.system.settings.isvisible)
 								.map(item => ({ _id: item._id, ...item }));
 						
-		context.virtues = context.virtues.sort((a, b) => Number(a.system.settings.order) - Number(b.system.settings.order));		
+		context.virtues = context.virtues.sort((a, b) => Number(a.system.settings.order) - Number(b.system.settings.order));	
+		context.showVirtues = context.virtues.length > 0;	
 	}
 	if (actor.system.settings.hasrenown) {
 		context.renowns = actor.items
@@ -984,11 +988,13 @@ export const prepareStatContext = async function (context, actor) {
 								.map(item => ({ _id: item._id, ...item }));
 						
 		context.renowns = context.renowns.sort((a, b) => Number(a.system.settings.order) - Number(b.system.settings.order));
+		context.showRenowns = context.renowns.length > 0;
 	}
 	if (actor.system.settings.hasquintessence) {
 		context.quintessences = actor.items
 								.filter(item => item.type === "Advantage" && item.system.group === 'quintessence' && item.system.settings.isvisible)
 								.map(item => ({ _id: item._id, ...item }));
+		context.showQuintessences = context.quintessences.length > 0;
 	}
 
 	// Find all grouped advantages beyond virtue, renown, and quintessence
@@ -1044,7 +1050,6 @@ export const preparePowersContext = async function (context, actor) {
 	// Core power categories
 	context.disciplines = ItemHelper.GetPowersByType(actor, "wod.types.discipline", true);
 	
-	//context.paths = ItemHelper.GetPowersByType(actor, "wod.types.disciplinepath", true);
 	context.combinations = ItemHelper.GetPowersByType(actor, "wod.types.combination", true);
 	context.rituals = ItemHelper.GetPowersByType(actor, "wod.types.ritual", true);
 	context.rites = ItemHelper.GetPowersByType(actor, "wod.types.rite", true);
@@ -1056,10 +1061,8 @@ export const preparePowersContext = async function (context, actor) {
 	// Unsorted powers (no parent or missing parent reference)
 	const disciplinePowers = ItemHelper.GetPowersByType(actor, "wod.types.disciplinepower");
 	const numinaPowers = ItemHelper.GetPowersByType(actor, "wod.types.numinapower");
-	//const pathPowers = ItemHelper.GetPowersByType(actor, "wod.types.disciplinepathpower");
 	context.unsorteddisciplines = disciplinePowers.filter(power => lacksParent(power, context.disciplines));
 	context.unsortednuminas = numinaPowers.filter(power => lacksParent(power, context.numinas));
-	//context.unsortedpaths = pathPowers.filter(power => lacksParent(power, context.paths));
 
 	// Gifts grouped by rank
 	const giftItems = ItemHelper.GetPowersByType(actor, "wod.types.gift");

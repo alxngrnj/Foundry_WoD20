@@ -14,7 +14,7 @@ export default class WoDItemSheet extends foundry.appv1.sheets.ItemSheet {
 		super(item, options);
 
 		//this.locked = item.system.iscreated;
-		this.locked = false;
+		this.locked = item.permission < 3;
 		this.isCharacter = false;	
 		this.isGM = game.user.isGM;	
 		this.game = game;

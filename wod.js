@@ -642,11 +642,6 @@ Hooks.once("ready", async function () {
 	
 	CONFIG.language = game.i18n.lang;	
 	CONFIG.worldofdarkness.darkmode = game.settings.get('core', 'uiConfig').colorScheme.applications === "dark";
-	
-	// if (CONFIG.worldofdarkness.darkmode) {
-	// 	let chat = document.getElementById("chat");
-	// 	chat.classList.add("wod-theme-dark");
-	// }
 
 	if (game.worldofdarkness.abilities == undefined) {
 		ui.notifications.error("World of Darkness settings couldn't load! Check your modules!", {permanent: true});

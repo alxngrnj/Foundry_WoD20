@@ -72,20 +72,26 @@
 }
 
 .wod-theme-dark.wod20 optgroup {
-    background: var(--darkmode-background-light); 
-    color: var(--darkmode-textcolor-light);
+    background: var(--darkmode-background-dark);
+    color: var(--darkmode-textcolor-dark);
 }
 
 .wod-theme-dark.wod20 select option[value=""],
 .wod-theme-dark.wod20 .editor .tox-editor-container,
 .wod-theme-dark.wod20 .textarea {
-    background: var(--darkmode-background-light); 
-    color: var(--darkmode-textcolor-light);
+    background: var(--darkmode-background-dark);
+    color: var(--darkmode-textcolor-dark);
+}
+
+.wod-theme-dark.wod20 button.disabled {
+    color: var(--darkmode-textcolor-dark) !important;
+    background: var(--darkmode-background-dark) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
 } 
 
 .wod-theme-dark.wod20 .vrollable:hover,
 .wod-theme-dark.wod20 .vrollable:focus {
-    color: var(--darkmode-textcolor-light);  
+    color: var(--darkmode-textcolor-dark);
 }
 
 .wod-theme-dark.wod-dialog button .eon-roller__flag {
@@ -130,7 +136,7 @@
 }
 
 .wod-theme-dark.wod-sheet .sheet-banner-text {
-    background: var(--darkmode-background-dark);         
+    background: var(--darkmode-area10-background);
     border-radius: 10px;
 }
 
@@ -148,7 +154,7 @@
 }
 
 .wod-theme-dark.wod-sheet .sheet-banner-small {
-    background: var(--darkmode-background-dark); 
+    /* background: var(--darkmode-background-dark);  */
     width: 95%;
     display: inline-block;
     border-radius: 10px;

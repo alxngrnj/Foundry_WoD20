@@ -2782,6 +2782,19 @@ export  const updates = async () => {
     if (newfunctions == "") {
         newfunctions += 'Issues fixed in version:<br />';
 
+        if (_compareVersion(installedVersion, '6.0.10')) {
+            newfunctions += '<li>[General] Description and system was not visible on items if user was set as observer. <a href="https://github.com/JohanFalt/Foundry_WoD20/issues/1362">[#1362]</a></li>';
+            newfunctions += '<li>[General] You can now set higher max values on attributes that the general max value in attribute settings.</li>';
+            newfunctions += '<li>[General] Minor dark mode fixes.</li>';            
+            newfunctions += '<li>[General] If no virtues where visible, do not show the virtue box on PC actors.</li>';
+            newfunctions += '<li>[General] PC actors could not clear health levels with right click.</li>';
+            newfunctions += '<li>[General] PC actors other traits with rolls did not display the sheets advantages.</li>';
+            newfunctions += '<li>[General] Fixed graphical issue with chat display of sparying damage.</li>';
+            newfunctions += '<li>[General] Rebuilt weapon dialog for attacking and damage.</li>';
+            newfunctions += '<li>[MtA] Could not set PC actor sphere to technocracy versions.</li>';
+            newfunctions += '<li>[MtA] PC Actor did not show resonance value correctly.</li>';            
+        }
+
         if (_compareVersion(installedVersion, '6.0.9')) {
             newfunctions += '<li>[General] Fixed problem that caused secondary abilities max value to not be updated correctly.</li>';
             newfunctions += '<li>[WtA] Fixed graphical problems of showing attributes and abilities higher than five.</li>';

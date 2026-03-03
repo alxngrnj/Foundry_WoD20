@@ -68,6 +68,20 @@
                         </div>
                     </div>
                 
+                {{else if (eq section.template "simpledots")}}                
+                    <!-- SIMPLE POWER LIST WITH DOTS (Resonances, etc.) -->
+                    <div class="sheet-area flex-columns">
+                        <div>
+                            <div class="sheet-headline sheet-banner splatFont" data-area="{{section.id}}">
+                                <span class="sheet-banner-text">{{localize section.localizeKey}}</span>
+                            </div>
+                            {{#each section.data.items as |item id|}}
+                                {{> "systems/worldofdarkness/templates/actor/parts/power_listpowerdots.hbs" 
+                                    item=item config=../../config actor=../../actor locked=../../locked showclear=false}}
+                            {{/each}}
+                        </div>
+                    </div>
+                
                 {{else if (eq section.template "column")}}                
                     <!-- 2 COLUMN POWER LIST (Rotes, etc.) -->
                     <div class="sheet-area flex-columns">

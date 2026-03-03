@@ -16,7 +16,7 @@ export function getEraList() {
   for (const eraKey in CONFIG.worldofdarkness.era) {
     const eraValue = CONFIG.worldofdarkness.era[eraKey]; // e.g. "wod.era.modern"
     eralist.push({
-      value: eraKey,
+      value: eraValue,
       label: game.i18n.localize(eraValue)
     });
   }

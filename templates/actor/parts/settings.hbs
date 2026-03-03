@@ -165,7 +165,7 @@
 						{{else if (eq groupData.group "renown")}}
 							{{localize "wod.advantages.renown"}}
 						{{else if (eq groupData.group "quintessence")}}
-							{{localize "wod.advantages.quintessence.headline"}}
+							{{localize "wod.advantages.quintessence"}}
 						{{else}}
 							{{groupData.group}}
 						{{/if}}
@@ -173,14 +173,20 @@
 
 					<div class="dialog-area flex-columns">
 						{{#each groupData.items as |item|}}
+							{{log item}}
 							<div class="flex-row">
+								<div class="width-iconbox">&nbsp;</div>
 								<div class="headlineNormal" style="width:150px;">{{localize item.system.label}}</div>
 								<div>
 									{{#if (not ../../locked)}}
-										{{#if item.system.settings.isvisible}}
-											<i class="item-active pointer icon fa-solid fa-eye" data-itemid="{{item._id}}" data-type="settings.isvisible" data-action="itemSwitch"></i>
+										{{#if (eq item.system.id "paradox")}}
+											<i class="icon" style="display: inline-block; min-width: 1em;"></i>
 										{{else}}
-											<i class="item-active pointer icon fa-solid fa-eye-slash" data-itemid="{{item._id}}" data-type="settings.isvisible" data-action="itemSwitch"></i>
+											{{#if item.system.settings.isvisible}}
+												<i class="item-active pointer icon fa-solid fa-eye" data-itemid="{{item._id}}" data-type="settings.isvisible" data-action="itemSwitch"></i>
+											{{else}}
+												<i class="item-active pointer icon fa-solid fa-eye-slash" data-itemid="{{item._id}}" data-type="settings.isvisible" data-action="itemSwitch"></i>
+											{{/if}}
 										{{/if}}
 										<a class="pointer item-edit" title="{{localize 'wod.labels.edit.headline'}}" data-type="{{item.type}}" data-itemid="{{item._id}}" data-action="itemEdit"><i class="icon fa-solid fa-pen-to-square"></i></a>
 										{{#if item.system.settings.isremovable}}

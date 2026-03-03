@@ -12,7 +12,7 @@ import DropHelper from "./drop-helpers.js";
 import AttributeHelper from "./attribute-helpers.js";
 import SphereHelper from "./sphere-helpers.js";
 
-import * as WeaponDialog from "../dialogs/dialog-weapon.js";
+import { DialogWeaponV2 } from "../dialogs/dialog-weaponv2.js";
 import * as PowerDialog from "../dialogs/dialog-power.js";
 import * as TraitDialog from "../dialogs/dialog-trait.js";
 import * as SortDialog from "../dialogs/dialog-sortpower.js";
@@ -111,29 +111,22 @@ export default class ActionHelper {
 				return;
 			}
 
-			// used a Weapon
-			if (dataset.object == "Melee") {
-				const weapon = new WeaponDialog.MeleeWeapon(item);
-				let weaponUse = new WeaponDialog.DialogWeapon(actor, weapon);
+			// used a Weapon (V2 dialog: attack vs damage state)
+			if ((dataset.object == "Melee") || (dataset.object == "Ranged") || (dataset.object == "Damage")) {
+				const attackRollable = item.system?.attack?.isrollable !== false;
+				const damageRollable = item.system?.damage?.isrollable !== false;
+				if (!attackRollable && !damageRollable) {
+					ui.notifications.warn(game.i18n.localize("wod.dialog.weapon.noattackordamage"));
+					return;
+				}
+				let state;
+				if (dataset.object == "Damage") {
+					state = "damage";
+				} else {
+					state = attackRollable ? "attack" : "damage";
+				}
+				const weaponUse = new DialogWeaponV2(actor, item, state);
 				weaponUse.render(true);
-
-				return;
-			}
-
-			if (dataset.object == "Ranged") {
-				const weapon = new WeaponDialog.RangedWeapon(item);
-				let weaponUse = new WeaponDialog.DialogWeapon(actor, weapon);
-				weaponUse.render(true);
-
-				return;
-			}
-
-			if (dataset.object == "Damage") {
-				item.system.extraSuccesses = 0;
-				const damage = new WeaponDialog.Damage(item);
-				let weaponUse = new WeaponDialog.DialogWeapon(actor, damage);
-				weaponUse.render(true);
-
 				return;
 			}
 
@@ -766,18 +759,42 @@ export const OnSquareCounterChange = async function (event, target) {
 }
 
 /* Clear health boxes */
-//async _onSquareCounterClear(event) {
+// export const OnSquareCounterClear = async function (event) {
+// 	event.preventDefault();
+
+// 	const element = event.currentTarget;
+// 	const oldState = element.dataset.state || "";
+// 	const dataset = element.dataset;
+// 	const type = dataset.type;
+
+// 	let actorData = foundry.utils.duplicate(this.actor);
+
+// 	if (oldState == "") {
+// 		return
+// 	}
+// 	else if (oldState == "/") { 
+// 		actorData.system.health.damage.bashing = parseInt(actorData.system.health.damage.bashing) - 1;
+// 	}
+// 	else if (oldState == "x") { 
+// 		actorData.system.health.damage.lethal = parseInt(actorData.system.health.damage.lethal) - 1;
+// 	}
+// 	else if (oldState == "*") { 
+// 		actorData.system.health.damage.aggravated = parseInt(actorData.system.health.damage.aggravated) - 1;
+// 	}
+
+// 	actorData = await calculateTotals(actorData);
+// 	actorData.system.settings.isupdated = false;
+// 	await this.actor.update(actorData);
+// 	this.render();
+// }
 export const OnSquareCounterClear = async function (event) {
 	event.preventDefault();
 
-	const element = event.currentTarget;
+	// Find the actual healthbox element (works with both direct binding and event delegation)
+	const element = event.target.closest?.(".health .resource-value-step") || event.currentTarget;
 	const oldState = element.dataset.state || "";
 	const dataset = element.dataset;
 	const type = dataset.type;
-
-	if (type != CONFIG.worldofdarkness.sheettype.mortal) {
-		return;
-	}
 
 	let actorData = foundry.utils.duplicate(this.actor);
 

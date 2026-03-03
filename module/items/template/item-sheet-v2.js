@@ -101,12 +101,30 @@ export default class WoDItemSheetV2 extends HandlebarsApplicationMixin(foundry.a
 				value = parseInt(target.value)
 			} else if (target.type === 'checkbox') {
 				value = target.checked
+				
+				// If this is the istechnocracy checkbox, update the sphere label
+				if (target.name === 'system.settings.istechnocracy') {
+					const sphere = this.item.system.id;
+					const istechnocracy = value;
+                    
+                    let label = this.setSphereName(sphere, istechnocracy);
+                    if (label === "") {
+                        label = this.item.system.label;
+                    }
+					
+					// Update both the checkbox value and the label
+					await this.item.update({
+						[`${target.name}`]: value,
+						'system.label': label
+					});
+					return;
+				}
 			} else {
 				value = target.value
 			}
 
 			// Make the update for the field
-			this.item.update({
+			await this.item.update({
 				[`${target.name}`]: value
 			})
 		} else {
@@ -191,6 +209,78 @@ export default class WoDItemSheetV2 extends HandlebarsApplicationMixin(foundry.a
     async _onDropItem (event, data) {
         const dataset = event.target.dataset;
         const item = await Item.implementation.fromDropData(data)
+    }
+
+    setSphereName(sphere, istechnocracy) {
+        let label = "";
+
+        switch(sphere) {
+            case "correspondence":
+                label = "wod.spheres.correspondence";
+                break;
+            case "entropy":
+                label = "wod.spheres.entropy";
+                break;
+            case "forces":
+                label = "wod.spheres.forces";
+                break;
+            case "life":
+                label = "wod.spheres.life";
+                break;
+            case "matter":
+                label = "wod.spheres.matter";
+                break;
+            case "mind":
+                label = "wod.spheres.mind";
+                break;
+            case "prime":
+                label = "wod.spheres.prime";
+                break;
+            case "spirit":
+                label = "wod.spheres.spirit";
+                break;
+            case "time":
+                label = "wod.spheres.time";
+                break;
+            default:
+                break;
+        }
+
+        if (istechnocracy) {
+            switch(sphere) {
+                case "correspondence":
+                    label = "wod.spheres.data";
+                    break;
+                case "entropy":
+                    label = "wod.spheres.entropicstate";
+                    break;
+                case "forces":
+                    label = "wod.spheres.forcebased";
+                    break;
+                case "life":
+                    label = "wod.spheres.lifescience";
+                    break;
+                case "matter":
+                    label = "wod.spheres.material";
+                    break;
+                case "mind":
+                    label = "wod.spheres.psychodynamics";
+                    break;
+                case "prime":
+                    label = "wod.spheres.primal";
+                    break;
+                case "spirit":
+                    label = "wod.spheres.dimensional";
+                    break;
+                case "time":
+                    label = "wod.spheres.temporalscience";
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return label;
     }
 }
 

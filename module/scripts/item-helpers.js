@@ -937,13 +937,6 @@ export default class ItemHelper {
 					localizeKey: "wod.power.numinas",
 					condition: actor.system.settings.hasnuminas && context.numinas?.length
 				},
-				// paths: {
-				// 	id: "paths",
-				// 	template: "hierarchical",
-				// 	data: { items: context.paths },
-				// 	localizeKey: "wod.power.paths",
-				// 	condition: actor.system.settings.hasdisciplinepaths && context.paths?.length
-				// },
 				combinations: {
 					id: "combinations",
 					template: "simple",
@@ -981,7 +974,7 @@ export default class ItemHelper {
 				},
 				resonances: {
 					id: "resonances",
-					template: "simple",
+					template: "simpledots",
 					data: { items: context.resonances },
 					localizeKey: "wod.types.resonance",
 					condition: actor.system.settings.hasresonances && context.resonances?.length

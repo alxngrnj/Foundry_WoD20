@@ -201,7 +201,7 @@ export class WoDActor extends Actor {
             for (const i in actorData.system.attributes) {
                 actorData.system.attributes[i].isvisible = true;                
 
-                if (actorData.system.attributes[i].max === traitMax) {
+                if ((actorData.system.attributes[i].max === traitMax) || (actorData.system.attributes[i].max > traitMax)) {
                     continue;
                 }
 

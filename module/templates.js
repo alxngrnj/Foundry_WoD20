@@ -34,6 +34,7 @@ export const preloadHandlebarsTemplates = async function () {
 		"systems/worldofdarkness/templates/actor/parts/powers.hbs",
 			"systems/worldofdarkness/templates/actor/parts/power_listmainpower.hbs",
 			"systems/worldofdarkness/templates/actor/parts/power_listpower.hbs",
+			"systems/worldofdarkness/templates/actor/parts/power_listpowerdots.hbs",
 			"systems/worldofdarkness/templates/actor/parts/power_shapes.hbs",
 			"systems/worldofdarkness/templates/actor/parts/power_spheres.hbs",
 		"systems/worldofdarkness/templates/actor/parts/combat.hbs",

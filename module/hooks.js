@@ -278,37 +278,38 @@ export function registerHooks(constants, isTablet) {
 	Hooks.on("renderItemSheetV2", (sheet) => {
 		CONFIG.worldofdarkness.darkmode = game.settings.get('core', 'uiConfig').colorScheme.applications === "dark";
 
-		// Check if this is a WoD item sheet
-		if (sheet.element?.classList?.contains("wod-item")) {
+		// Check if this is a WoD item sheet; apply classes to the DOM element (sheet.element)
+		const el = sheet.element;
+		if (el?.classList?.contains("wod-item")) {
 			// adding the means to control the CSS by what language is used.
 			if (CONFIG.language == "de") {
-				sheet.classList.add("langDE");
+				el.classList.add("langDE");
 			}
 			else if (CONFIG.language == "es") {
-				sheet.classList.add("langES");
+				el.classList.add("langES");
 			}
 			else if (CONFIG.language == "it") {
-				sheet.classList.add("langIT");
+				el.classList.add("langIT");
 			}
 			else if (CONFIG.language == "fr") {
-				sheet.classList.add("langFR");
+				el.classList.add("langFR");
 			}
 			else if (CONFIG.language == "pt-BR") {
-				sheet.classList.add("langPT");
+				el.classList.add("langPT");
 			}
 			else {
-				sheet.classList.add("langEN");
+				el.classList.add("langEN");
 			}
 
 			if (game.settings.get('worldofdarkness', 'useSplatFonts') === false) {
-				sheet.classList.add("noSplatFont");
+				el.classList.add("noSplatFont");
 			}
 			else if (sheet.item?.actor?.system?.settings?.usesplatfont === false) {
-				sheet.classList.add("noSplatFont");
+				el.classList.add("noSplatFont");
 			}
 
 			if (CONFIG.worldofdarkness.darkmode) {
-				sheet.classList.add("wod-theme-dark");
+				el.classList.add("wod-theme-dark");
 			}
 		}
 	});
