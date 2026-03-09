@@ -1,7 +1,6 @@
 import { default as MortalActorSheet } from "./mortal-actor-sheet.js";
 import ActionHelper from "../../scripts/action-helpers.js";
 import TokenHelper from "../../scripts/token-helpers.js";
-import { calculateTotals } from "../../scripts/totals.js";
 
 export default class WerewolfActorSheet extends MortalActorSheet {
 	

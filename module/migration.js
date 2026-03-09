@@ -2782,6 +2782,11 @@ export  const updates = async () => {
     if (newfunctions == "") {
         newfunctions += 'Issues fixed in version:<br />';
 
+        if (_compareVersion(installedVersion, '6.0.11')) {
+            newfunctions += '<li>[General] Fixed issue where weapons did not save their era correctly.</li>';
+            newfunctions += '<li>[PC Actor] Fixed issue where using other template than a modern one would cause the setup to fail.</li>';
+        }
+
         if (_compareVersion(installedVersion, '6.0.10')) {
             newfunctions += '<li>[General] Description and system was not visible on items if user was set as observer. <a href="https://github.com/JohanFalt/Foundry_WoD20/issues/1362">[#1362]</a></li>';
             newfunctions += '<li>[General] You can now set higher max values on attributes that the general max value in attribute settings.</li>';

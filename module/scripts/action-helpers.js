@@ -1169,16 +1169,6 @@ export const OnRemoveSplat = async function (event, target) {
 	
 	// Remove splat and all related data (fungerar även utan splat item)
 	await DropHelper.RemoveSplatFromActor(this.actor, splatItem || null);
-	
-	// Delete the splat item itself om det finns
-	// if (splatItem) {
-	// 	await this.actor.deleteEmbeddedDocuments("Item", [splatItem.id]);
-	// }
-
-	// // Recalculate totals and render
-	// let actorData = foundry.utils.duplicate(this.actor);
-	// actorData = await calculateTotals(actorData);
-	// await this.actor.update(actorData);
 	this.render();
 }
 

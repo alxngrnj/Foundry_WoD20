@@ -44,7 +44,7 @@
  * - This file is long. Use the `//#region ...` markers below to quickly fold and navigate sections.
  */
 import { selectPlaceholder, makeLocalizedOptionMap } from "./select/utils.js";
-import { getEraList, getWeaponConcealList } from "./select/era.js";
+import { getEraList, getWeaponEraList, getWeaponConcealList } from "./select/era.js";
 import {
     getChangelingSeemingList,
     getChangelingCourtList,
@@ -92,7 +92,7 @@ export default class SelectHelper {
             // Weapons: used by `templates/sheets/*weapon-sheet.html`
             // Era and conceal lists used by weapon sheets
             listData.Era = this.GetEraList();
-            listData.WeaponEra = listData.Era;
+            listData.WeaponEra = this.GetWeaponEraList();
             listData.Conceal = this.GetWeaponConcealList(data);
 
             listData.AttackAttributes = [{
@@ -104,7 +104,7 @@ export default class SelectHelper {
                 label: "- " + game.i18n.localize("wod.labels.select") + " -"
             },{
                 value: "custom", 
-                label: "- " + game.i18n.localize("wod.labels.custom") + " -"
+                label: "- " + game.i18n.localize("wod.labels.usesecondary") + " -"
             }];
                 
             for (const attribute in CONFIG.worldofdarkness.attackAttributes) {
@@ -955,7 +955,7 @@ export default class SelectHelper {
         else {
             listData.Era = this.GetEraList();
             // Backward-compat alias for weapon templates
-            listData.WeaponEra = listData.Era;
+            listData.WeaponEra = this.GetWeaponEraList();
 
             let sheetlist = [{
                 value: "",
@@ -1197,6 +1197,8 @@ export default class SelectHelper {
      * Values are localization keys from `CONFIG.worldofdarkness.era` (e.g. `"wod.era.modern"`).
      */
     static GetEraList() { return getEraList(); }
+
+    static GetWeaponEraList() { return getWeaponEraList(); }
 
     /**
      * Conceal: weapon concealment code list (P/J/T/NA) with era-aware labels.

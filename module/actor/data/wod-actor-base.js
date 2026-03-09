@@ -61,8 +61,7 @@ export class WoDActor extends Actor {
             // Handle PC actors
             if (actorData.type === "PC") {
                 // Derived calculations: Wound levels
-                await this._handleWoundLevelCalculations(actorData);
-                
+                await this._handleWoundLevelCalculations(actorData);                
                 
                 // Derived calculations: Movement (needs total dexterity and all active items)
                 systemData.movement = await CombatHelper.CalculateMovementv2(actorData);
@@ -393,8 +392,6 @@ export class WoDActor extends Actor {
             if (itemList.length > 0) {
                 this.updateEmbeddedDocuments("Item", itemList);
             }
-
-
         }
     }
 

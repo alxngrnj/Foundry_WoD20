@@ -52,7 +52,7 @@ export function getPowerDice1List(itemData) {
   if (type === "wod.types.hekaupower") {
     list.push({
       value: "custom",
-      label: selectPlaceholder("wod.labels.custom")
+      label: selectPlaceholder("wod.labels.usesecondary")
     });
 
     for (const ability in CONFIG.worldofdarkness.talents) {
@@ -178,7 +178,7 @@ export function getPowerDice2List(itemData) {
   // Charms do not use dice2
   if (type === "wod.types.charm") return list;
 
-  list.push({ value: "custom", label: selectPlaceholder("wod.labels.custom") });
+  list.push({ value: "custom", label: selectPlaceholder("wod.labels.usesecondary") });
 
   for (const ability in CONFIG.worldofdarkness.talents) {
     list.push({

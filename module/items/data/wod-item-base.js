@@ -1,3 +1,5 @@
+import { calculateTotals } from "../../scripts/totals.js";
+
 /**
  * Extend the basic Item with some very simple modifications.
  * @extends {Item}
@@ -80,21 +82,38 @@ export class WoDItem extends Item {
 
 			if (updateData.type === "Power") {
 				updateData = await this._handlePowerCalculations(updateData);
-			} 
-
-			// Call super._preUpdate to allow parent class to process
-			return await super._preUpdate(updateData, options, user);
+			} 			
 		}
 		catch (err) {
 			ui.notifications.error(`Cannot update Item ${updateData.name}. Please check console for details.`);
 			err.message = `Cannot update Item ${updateData.name}: ${err.message}`;
 			console.error(err);
-			console.log(updateData);
-			return false; // Prevent update if there's an error
 		}
+
+		await super._preUpdate(updateData, options, user);
 	}
 
 	async _onUpdate(updateData, options, user) {
+		try {
+			const item = this;
+
+			if ((item) && (item?.actor !== undefined) && (item?.actor !== null)) {
+				const actor = await game.actors.get(item.actor._id);
+
+				if (actor !== undefined) {
+					let actorData = foundry.utils.duplicate(this.actor);
+					actorData = await calculateTotals(actorData);
+					actorData.system.settings.isupdated = false;
+					await this.actor.update(actorData);
+				}
+			}			
+		}
+		catch (err) {
+			ui.notifications.error(`Cannot update Item ${updateData.name}. Please check console for details.`);
+			err.message = `Cannot update Item ${updateData.name}: ${err.message}`;
+			console.error(err);
+		}
+
 		await super._onUpdate(updateData, options, user);
 	}
 

@@ -517,7 +517,7 @@ Hooks.once("ready", async function () {
 	CONFIG.statusEffects.push({
 		id: "wod_shapeform_icon",
 		name: "Shapeform Icon",
-		img: "systems/worldofdarkness/assets/img/icons/shapeform.svg" // Fallback ikon
+		img: "systems/worldofdarkness/assets/img/shapes/form_homid.svg" // Fallback ikon
 	});
 	
 	// Hämta alla unika shapeform ikoner från PC actors i world

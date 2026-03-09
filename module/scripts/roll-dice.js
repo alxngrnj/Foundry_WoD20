@@ -100,7 +100,6 @@ export class DiceRollContainer {
 
 // Function to roll dice
 export async function DiceRoller(diceRoll) {
-
 	const actor = diceRoll.actor;
 	let difficulty = diceRoll.difficulty;
 	let specialityText = diceRoll.specialityText;

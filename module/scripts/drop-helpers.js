@@ -1233,7 +1233,15 @@ export default class DropHelper {
         const game = item.system.settings.game;
         const variant = item.system.settings.variant;   
 
-        const biolist = CONFIG.worldofdarkness.sheetv2.bio[era][splat];
+        let biolist = CONFIG.worldofdarkness.sheetv2.bio?.[era]?.[splat];
+
+        if (biolist === undefined) {
+            biolist = CONFIG.worldofdarkness.sheetv2.bio?.["modern"]?.[splat];
+
+            if (biolist === undefined) {
+                biolist = {};
+            }
+        }
     
         // Keep field.listdata as string (e.g. "AffiliationList", "Generation")
         // The actual list will be looked up dynamically in template using listData[field.listdata]
