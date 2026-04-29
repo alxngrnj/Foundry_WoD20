@@ -28,7 +28,7 @@ wod.splat = {
     exalted: "exalted",
     mortal: "mortal",
     creature: "creature",
-    changingbreed: "changing breed",
+    changingbreed: "changingbreed",
     spirit: "spirit"
 }
 

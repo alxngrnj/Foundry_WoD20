@@ -3,10 +3,6 @@ import { dataability } from "../assets/data/sheet/ability.js";
 import { databiotab } from "../assets/data/sheet/biotab.js";
 import { datapowertab } from "../assets/data/sheet/powertab.js";
 
-import BonusHelper from "./scripts/bonus-helpers.js";
-import ItemHelper from "./scripts/item-helpers.js";
-import Functions from "./functions.js";
-
 /**
  * Define a set of template paths to pre-load
  * Pre-loaded templates are compiled and cached for fast access when rendering
@@ -37,6 +33,7 @@ export const preloadHandlebarsTemplates = async function () {
 			"systems/worldofdarkness/templates/actor/parts/power_listpowerdots.hbs",
 			"systems/worldofdarkness/templates/actor/parts/power_shapes.hbs",
 			"systems/worldofdarkness/templates/actor/parts/power_spheres.hbs",
+			"systems/worldofdarkness/templates/actor/parts/power_realms.hbs",
 		"systems/worldofdarkness/templates/actor/parts/combat.hbs",
 			"systems/worldofdarkness/templates/actor/parts/combat_natural.hbs",
 			"systems/worldofdarkness/templates/actor/parts/combat_melee.hbs",
@@ -181,6 +178,8 @@ export const preloadHandlebarsTemplates = async function () {
 
 		// Item Sheet Partials - .hbs files
 		"systems/worldofdarkness/templates/items/parts/description.hbs",
+		"systems/worldofdarkness/templates/items/parts/splat-bio-fields.hbs",
+		"systems/worldofdarkness/templates/items/parts/splat-bio-tab.hbs",
 
 		// Item Sheet Partials
 		"systems/worldofdarkness/templates/sheets/parts/power_rollable.html",
@@ -196,11 +195,9 @@ export function SetupAbilities()
 {
     try {        
 		let importData = dataability;
-		// let fileData = await fetch(`systems/worldofdarkness/assets/data/ability.json`).then((response) => response.json());
-		// Object.assign(importData, fileData);
-
 		return importData;		
-    } catch(err) {
+    } 
+	catch(err) {
 		err.message = `Failed Setup ability: ${err.message}`;
         console.error(err);
         return
@@ -212,7 +209,8 @@ export function SetupBio()
     try {        
 		let importData = databio;
 		return importData;		
-    } catch(err) {
+    } 
+	catch(err) {
 		err.message = `Failed Setup bio: ${err.message}`;
         console.error(err);
         return
@@ -225,7 +223,8 @@ export function SetupBioTab()
     try {        
 		let importData = databiotab;
 		return importData;		
-    } catch(err) {
+    } 
+	catch(err) {
 		err.message = `Failed Setup bio: ${err.message}`;
         console.error(err);
         return
@@ -238,7 +237,8 @@ export function SetupPowerTab()
     try {        
 		let importData = datapowertab;
 		return importData;		
-    } catch(err) {
+    } 
+	catch(err) {
 		err.message = `Failed Setup power: ${err.message}`;
         console.error(err);
         return

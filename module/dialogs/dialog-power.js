@@ -238,14 +238,40 @@ export class DialogPower extends FormApplication {
         super(power, {submitOnChange: true, closeOnSubmit: false});
         this.actor = actor;
         this.isDialog = true;
+        let hasRealms = false;
+        let realms = [];
 
-        if (this.actor.system.settings.powers.hasarts) {
-            this.object.selectedRealms = this.actor.system.listdata.powers.arts.realms;
+        if (this.actor.type === "PC") {
+            realms = this.actor.items.filter(item => item.type === "Realm" && item.system.settings.isvisible);
+            hasRealms = true;
+        }
+        else if (this.actor.system.settings.powers.hasarts) {
+            realms = this.actor.system.listdata.powers.arts.realms;          
+            hasRealms = true;  
+        }
 
-            for (const realm of this.object.selectedRealms) {
+        if (hasRealms) {
+            if (this.actor.type === "PC") {
+                // PC realms are embedded Item documents; normalize to the legacy realm shape
+                this.object.selectedRealms = realms.map(realm => ({
+                    label: realm.system?.label,
+                    value: parseInt(realm.system?.value ?? 0),
+                    isaffinity: realm.system?.isaffinity ?? false,
+                    isvisible: realm.system?.settings?.isvisible ?? true,
+                    speciality: realm.system?.speciality ?? "",
+                    max: realm.system?.max ?? 5,
+                    _id: realm._id ?? "",
+                }));
+            }
+            else {
+                // Legacy changeling already provides the correct shape
+                this.object.selectedRealms = realms;
+            }
+
+            for (const realm of this.object.selectedRealms) {                
                 realm.isselected = false;
             }
-        }
+        }        
         
         this.options.title = `${this.actor.name}`;
     }

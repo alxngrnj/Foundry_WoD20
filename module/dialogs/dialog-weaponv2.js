@@ -288,9 +288,15 @@ export class DialogWeaponV2 extends HandlebarsApplicationMixin(ApplicationV2) {
         } 
         else {
             data.actorData.type = this.actor.type;
-            if (this.actor.system?.listdata?.meleeAbilities?.length > 0) data.config.meleeAbilities = this.actor.system.listdata.meleeAbilities;
-            if (this.actor.system?.listdata?.rangedAbilities?.length > 0) data.config.rangedAbilities = this.actor.system.listdata.rangedAbilities;
-            data.object.sheettype = data.actorData.type !== CONFIG.worldofdarkness.sheettype.changingbreed
+            if (this.actor.system?.listdata?.meleeAbilities?.length > 0) {
+                data.config.meleeAbilities = this.actor.system.listdata.meleeAbilities;
+            }
+                
+            if (this.actor.system?.listdata?.rangedAbilities?.length > 0) { 
+                data.config.rangedAbilities = this.actor.system.listdata.rangedAbilities;
+            }
+
+            data.object.sheettype = data.actorData.type !== CONFIG.worldofdarkness.sheettype.changingbreed && data.actorData.type !== CONFIG.worldofdarkness.splat.changingbreed
                 ? (data.actorData.type || "").toLowerCase() + "Dialog"
                 : "werewolfDialog";
         }
@@ -445,7 +451,7 @@ export class DialogWeaponV2 extends HandlebarsApplicationMixin(ApplicationV2) {
         if (numberOfSuccesses > 0 && damageRollable) {
             this.weaponState = "damage";
             this.attackResult = {
-                extraSuccesses: numberOfSuccesses - 1,
+                extraSuccesses: CONFIG.worldofdarkness.successesToDamageRolls ? numberOfSuccesses - 1 : 0,
                 numberoftargets: o.numberoftargets,
                 modename: o.modename
             };

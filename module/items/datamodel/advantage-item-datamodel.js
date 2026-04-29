@@ -40,6 +40,7 @@ export default class AdvantageDataModel extends foundry.abstract.TypeDataModel {
         schema.perturn = new fields.NumberField({...valueInteger});
         schema.bearing = new fields.NumberField({...valueNumber});
         schema.bearingtext = new fields.StringField({...valueString});
+        schema.imbalance = new fields.NumberField({...valueInteger});
         
         schema.description = new fields.HTMLField();
 

@@ -126,10 +126,10 @@
 
 /* START Core */
 
-.langDE.wod-sheet .ability-headlineWidth,
+/* .langDE.wod-sheet .ability-headlineWidth,
 .langES.wod-sheet .ability-headlineWidth {
-  width: 60%;
-}
+  width: 50%;
+} */
 
 .langES.wod-sheet .supernaturalAttribute.ability-headlineWidth {
   width: 40%;
@@ -237,6 +237,9 @@
   width: 100px;
 }
 
+.langDE.changeling .armor-type-width {
+  width: 240px;
+}
 
 /* .langDE .combat-smallBox,
 .langPT .combat-smallBox {

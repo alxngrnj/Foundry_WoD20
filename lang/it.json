@@ -26,6 +26,7 @@
 	"TYPES.Item.Advantage": "Advantage",
 	"TYPES.Item.Ability": "Ability",
 	"TYPES.Item.Sphere": "Sphere",
+	"TYPES.Item.Realm": "Reame",
 	"wod": {
 		"system": {
 			"world": "Mondo aggiornato!",
@@ -133,6 +134,8 @@
 			"huntersettingshint": "Impostazioni a livello di Mondo usati in Cacciatori il Giudizio",
 			"werewolfsettings": "Impostazioni Licantropi l'Apocalisse",
 			"werewolfsettingshint": "Impostazioni a livello di Mondo usati in Licantropi l'Apocalisse",
+			"vampiresettings": "Vampire the Masquerade Settings",
+			"vampiresettingshint": "World settings used in Vampire the Masquerade.",
 			"edgesettings": "Impostazioni ottenimento Privilegi",
 			"edgesettingshints": "Secondo le regole di Cacciatori il Giudizio ci sono due metodi per ottenere Privilegi, la predefinita è usare le Virtù.",
 			"ragesettings": "Usa malus Furia",
@@ -507,6 +510,7 @@
 			},
 			"jamak": "Jamak",
 			"yava": "Yava",
+			"fera": "Fera",
 			"werewolf": {
 				"blackfuries": "Furie Nere",
 				"bonegnawer": "Rodi Ossa",
@@ -1222,7 +1226,14 @@
 			"apterous": "Apterous",
 			"megachiroptera": "Megachiroptera",
 			"aperius": "Aperius",
-			"daeodon": "Daeodon"
+			"daeodon": "Daeodon",
+			"scrofa": "Scrofa",
+			"naria": "Naria",
+			"alkab": "Alkab",
+			"aureus": "Aureus",
+			"dirus": "Dirus",
+			"mortalseeming": "Mortal seeming",
+			"faemien": "Fae mien"
 		},
 		"power": {
 			"nopowers": "No power selected",
@@ -1401,7 +1412,7 @@
 			"level": "Livello",
 			"rank": "Rango",
 			"other": "Altro",
-			"Combat": "Combat",
+			"combatlabel": "Combat",
 			"both": "Both",
 			"nochange": "No Change",
 			"usewillpower": "Use Willpower",
@@ -1621,7 +1632,25 @@
 				"variant": "Variant name",
 				"varianthint": "What type of variant of the template sheet is this sheet representing. Default is general.",
 				"era": "Game Era",
-				"erahint": "What game era the sheet it set to."
+				"erahint": "What game era the sheet it set to.",
+				"biofields": "Bio template fields",
+				"biofieldshint": "Field order on the character bio tab matches this order. Drag rows to reorder.",
+				"biofieldkey": "Field id",
+				"bioaddfield": "Add field",
+				"bioremovefield": "Remove",
+				"biolabel": "Label",
+				"biovalue": "Default value",
+				"biotype": "Field type",
+				"biolistdata": "List data key",
+				"biotypeinput": "Text input",
+				"biotypeselect": "Dropdown",
+				"biotypetextbox": "Rich text",
+				"bionofields": "No bio fields defined (CONFIG fallback applies when empty).",
+				"biofieldgeneration": "Generation do not need configurating.",
+				"biodone": "Done",
+				"bioneedkey": "Enter a field id before adding.",
+				"biokeyinvalid": "Field id cannot contain spaces or dots.",
+				"biokeyexists": "A field with id \"{key}\" already exists."
 			},
 			"new": {
 				"create": "Create item",
@@ -1808,7 +1837,8 @@
 				"numina": "Edit numina",
 				"numinapower": "Edit ritual/spell",
 				"horror": "Edit horror",
-				"stain": "Edit stain"
+				"stain": "Edit stain",
+				"realm": "Edit realm"
 			},
 			"remove": {
 				"headline": "Remove",
@@ -1887,6 +1917,7 @@
 				"nopcactor": "Item type {1} are not supported on this type of Actor {2} requires Actor type PC.",
 				"advantageexists": "This Advantage {1}} already exist on the sheet and can't be added.",
 				"dropsphere": "No function to add Spheres manually yet.",
+				"droprealm": "No function to add Realms manually yet.",
 				"warning": "Warning!",
 				"warningtext": "If you change Template all settings and alterations you have made be reset according to the new Template added",
 				"splatinstalled": "Template '{1}' added to '{2}'."

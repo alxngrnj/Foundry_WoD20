@@ -38,7 +38,7 @@ export default class CombatHelper {
 		movement.hjump = 4;
 		movement.fly = 0;
 
-		if ((actor.type == CONFIG.worldofdarkness.sheettype.werewolf) || (actor.type == CONFIG.worldofdarkness.sheettype.changingbreed)) {
+		if ((actor.type == CONFIG.worldofdarkness.sheettype.werewolf) || (actor.type == CONFIG.worldofdarkness.sheettype.changingbreed) ) {
 			if (actor.system.shapes.glabro.isactive) {
 				movement.vjump = 3;
 				movement.hjump = 4;
@@ -90,26 +90,33 @@ export default class CombatHelper {
 		movement.fly.isactive = false;
 		movement.fly.value = 0;
 
-		if ((actor.type == CONFIG.worldofdarkness.sheettype.werewolf) || (actor.type == CONFIG.worldofdarkness.sheettype.changingbreed)) {
-			if (actor.system.shapes.glabro.isactive) {
+		if (actor.system.settings.splat == CONFIG.worldofdarkness.splat.werewolf) {
+			let shape = actor?.items.filter(item => item.type === "Trait" && item.system.type === "wod.types.shapeform" && item.system.isvisible && item.system.isactive && item.system.label == "wod.shapes.glabro");
+			if (shape.length > 0) {
 				movement.vjump.value = 3;
 				movement.hjump.value = 4;
 			}
-			if (actor.system.shapes.crinos.isactive) {
+
+			shape = actor?.items.filter(item => item.type === "Trait" && item.system.type === "wod.types.shapeform" && item.system.isvisible && item.system.isactive && item.system.label == "wod.shapes.crinos");
+			if (shape.length > 0) {
 				movement.walk.value = movement.walk.value + 2;
 				movement.jog.value = movement.jog.value + 2;
 				movement.run.value = movement.run.value + 2;
 				movement.vjump.value = 4;
 				movement.hjump.value = 5;
 			}
-			if (actor.system.shapes.hispo.isactive) {
+
+			shape = actor?.items.filter(item => item.type === "Trait" && item.system.type === "wod.types.shapeform" && item.system.isvisible && item.system.isactive && item.system.label == "wod.shapes.hispo");
+			if (shape.length > 0) {
 				movement.walk.value = movement.walk.value * 1.5;
 				movement.jog.value = movement.jog.value * 1.5;
 				movement.run.value = movement.run.value * 1.5;
 				movement.vjump.value = 5;
 				movement.hjump.value = 6;
 			}
-			if (actor.system.shapes.lupus.isactive) {
+
+			shape = actor?.items.filter(item => item.type === "Trait" && item.system.type === "wod.types.shapeform" && item.system.isvisible && item.system.isactive && item.system.label == "wod.shapes.lupus");
+			if (shape.length > 0) {
 				movement.walk.value = movement.walk.value * 2;
 				movement.jog.value = movement.jog.value * 2;
 				movement.run.value = movement.run.value * 2;

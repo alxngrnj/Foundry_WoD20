@@ -121,7 +121,7 @@ export class DialogGeneralRoll extends FormApplication {
                 }
             }
 
-            if (actortype != CONFIG.worldofdarkness.sheettype.changingbreed.toLowerCase()) {
+            if ((actortype != CONFIG.worldofdarkness.sheettype.changingbreed) && (actortype != CONFIG.worldofdarkness.splat.changingbreed)) {
                 data.object.sheettype = actortype + "Dialog";
             }
             else {

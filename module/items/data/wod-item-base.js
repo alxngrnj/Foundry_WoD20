@@ -118,6 +118,27 @@ export class WoDItem extends Item {
 	}
 
 	static migrateData(source) {
+		// Foundry v13+ migrates export metadata from flags to _stats.
+		// Do this eagerly to avoid deprecated field access warnings in v14.
+		// const hasLegacyExportSource = source?.flags && Object.prototype.hasOwnProperty.call(source.flags, "exportSource");
+		// const hasCurrentExportSource = source?._stats && Object.prototype.hasOwnProperty.call(source._stats, "exportSource");
+		// let migratedLegacyExportSource = false;
+
+		// if (hasLegacyExportSource && !hasCurrentExportSource) {
+		// 	// Read the own-property descriptor to avoid triggering deprecated getter shims.
+		// 	const exportSourceDescriptor = Object.getOwnPropertyDescriptor(source.flags, "exportSource");
+		// 	source._stats ??= {};
+		// 	if (exportSourceDescriptor && Object.prototype.hasOwnProperty.call(exportSourceDescriptor, "value")) {
+		// 		source._stats.exportSource = exportSourceDescriptor.value;
+		// 		migratedLegacyExportSource = true;
+		// 	}
+		// }
+
+		// // Only delete legacy data if _stats already has a value or if we just migrated one.
+		// if (hasLegacyExportSource && (hasCurrentExportSource || migratedLegacyExportSource)) {
+		// 	delete source.flags.exportSource;
+		// }
+
 	    source = super.migrateData(source)
 	    return source;
 	}
@@ -349,6 +370,10 @@ function _getImage(item) {
 
 	if (item.type == "Sphere") {
 		return "systems/worldofdarkness/assets/img/items/mainpower_mage.svg";
+	}
+
+	if (item.type == "Realm") {
+		return "systems/worldofdarkness/assets/img/items/mainpower_changeling.svg";
 	}
 
 	if (item.type == "Power") {

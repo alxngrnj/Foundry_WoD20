@@ -108,7 +108,7 @@ export function registerHooks(constants, isTablet) {
 				sheet.classList.remove(variant);
 			}
 		}
-		if (sheet.splat.toLowerCase() == "werewolf") {
+		if ((sheet.splat.toLowerCase() == "werewolf") || (sheet.splat.toLowerCase() == "changingbreed")) {
 			sheet.classList.add("werewolf");
 			sheet.classList.remove("mortal");
 			sheet.classList.remove("wraith");
@@ -132,6 +132,32 @@ export function registerHooks(constants, isTablet) {
 				sheet.classList.remove(variant);
 			}
 		} 
+
+		if (sheet.splat.toLowerCase() == "changeling") {
+			sheet.classList.add("changeling");
+			sheet.classList.remove("mortal");
+			sheet.classList.remove("wraith");
+			sheet.classList.remove("werewolf");		
+			sheet.classList.remove("vampire");
+			sheet.classList.remove("mage");
+
+			for (const variant in CONFIG.worldofdarkness.variant.mortal) {
+				sheet.classList.remove(variant);
+			}
+		}
+
+		if (sheet.splat.toLowerCase() == "wraith") {
+			sheet.classList.add("wraith");
+			sheet.classList.remove("mortal");
+			sheet.classList.remove("changeling");
+			sheet.classList.remove("werewolf");		
+			sheet.classList.remove("vampire");
+			sheet.classList.remove("mage");
+
+			for (const variant in CONFIG.worldofdarkness.variant.mortal) {
+				sheet.classList.remove(variant);
+			}
+		}
 
 		if (!sheet.actor.system.settings.usesplatfont) {
 			sheet.classList.add("noSplatFont");

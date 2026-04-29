@@ -113,8 +113,8 @@ export default class MortalActorSheet extends foundry.appv1.sheets.ActorSheet {
 		}
 
 		// if (data.actor.type == CONFIG.worldofdarkness.sheettype.mortal) {
-		// 	console.log(`${data.actor.name} - (${CONFIG.worldofdarkness.sheettype.mortal})`);
-		// 	console.log(data.actor);
+		console.log(`${data.actor.name} - (${CONFIG.worldofdarkness.sheettype.mortal})`);
+		console.log(data.actor);
 		// }
 
 		return data;
@@ -602,12 +602,26 @@ export default class MortalActorSheet extends foundry.appv1.sheets.ActorSheet {
 
 			try {
 				value = parseInt(element.value);	
-			} catch (error) {
+			} 
+			catch (error) {
 				value = 0;
 			}		
 
 			actorData.system.attributes[attribute].bonus = value;
-		}	
+		}
+		else if (source == "health") {
+			const type = dataset.type;
+			let value = 0;
+
+			try {
+				value = parseInt(element.value);
+			} 
+			catch (error) {
+				value = 0;
+			}
+
+			actorData.system.health[type].value = value;
+		}
 		// if you are altering a secondary ability's speciality
 		else if (source == "ability") {
 			const itemid = dataset.abilityid;

@@ -154,7 +154,7 @@ export default class ActionHelper {
 					fetishRoll.numDices = parseInt(actor.system.advantages.willpower.roll);
 					fetishRoll.difficulty = 7;
 				}
-				else if ((actor.type != CONFIG.worldofdarkness.sheettype.werewolf) && (actor.type != CONFIG.worldofdarkness.sheettype.changingbreed)) {
+				else if ((actor.type != CONFIG.worldofdarkness.sheettype.werewolf) && (actor.type != CONFIG.worldofdarkness.sheettype.changingbreed) && (actor.type != CONFIG.worldofdarkness.splat.changingbreed)) {
 					template.push(`${game.i18n.localize("wod.advantages.willpower")} (${actor.system.advantages.willpower.roll})`);
 					fetishRoll.numDices = parseInt(actor.system.advantages.willpower.roll);
 					fetishRoll.difficulty = 7; 
@@ -725,31 +725,61 @@ export const OnSquareCounterChange = async function (event, target) {
 
 	let actorData = foundry.utils.duplicate(this.actor);
 
-	if (oldState == "") {
-		actorData.system.health.damage.bashing = parseInt(actorData.system.health.damage.bashing) + 1;
-	}
-	else if (oldState == "/") { 
-		actorData.system.health.damage.bashing = parseInt(actorData.system.health.damage.bashing) - 1;
-		actorData.system.health.damage.lethal = parseInt(actorData.system.health.damage.lethal) + 1;			
-	}
-	else if (oldState == "x") { 
-		actorData.system.health.damage.lethal = parseInt(actorData.system.health.damage.lethal) - 1;
-		actorData.system.health.damage.aggravated = parseInt(actorData.system.health.damage.aggravated) + 1;
-	}
-	else if (oldState == "*") { 
-		actorData.system.health.damage.aggravated = parseInt(actorData.system.health.damage.aggravated) - 1;
-	}
+	if (dataset.type === CONFIG.worldofdarkness.sheettype.mortal) {
+		if (oldState == "") {
+			actorData.system.health.damage.bashing = parseInt(actorData.system.health.damage.bashing) + 1;
+		}
+		else if (oldState == "/") { 
+			actorData.system.health.damage.bashing = parseInt(actorData.system.health.damage.bashing) - 1;
+			actorData.system.health.damage.lethal = parseInt(actorData.system.health.damage.lethal) + 1;			
+		}
+		else if (oldState == "x") { 
+			actorData.system.health.damage.lethal = parseInt(actorData.system.health.damage.lethal) - 1;
+			actorData.system.health.damage.aggravated = parseInt(actorData.system.health.damage.aggravated) + 1;
+		}
+		else if (oldState == "*") { 
+			actorData.system.health.damage.aggravated = parseInt(actorData.system.health.damage.aggravated) - 1;
+		}
 
-	if (parseInt(actorData.system.health.damage.bashing) < 0) {
-		actorData.system.health.damage.bashing = 0;
-	}
+		if (parseInt(actorData.system.health.damage.bashing) < 0) {
+			actorData.system.health.damage.bashing = 0;
+		}
 
-	if (parseInt(actorData.system.health.damage.lethal) < 0) {
-		actorData.system.health.damage.lethal = 0;
-	}
+		if (parseInt(actorData.system.health.damage.lethal) < 0) {
+			actorData.system.health.damage.lethal = 0;
+		}
 
-	if (parseInt(actorData.system.health.damage.aggravated) < 0) {
-		actorData.system.health.damage.aggravated = 0;
+		if (parseInt(actorData.system.health.damage.aggravated) < 0) {
+			actorData.system.health.damage.aggravated = 0;
+		}
+	}
+	if (dataset.type === CONFIG.worldofdarkness.sheettype.changeling) {
+		if (oldState == "") {
+			actorData.system.health.damage.chimerical.bashing = parseInt(actorData.system.health.damage.chimerical.bashing) + 1;
+		}
+		else if (oldState == "/") { 
+			actorData.system.health.damage.chimerical.bashing = parseInt(actorData.system.health.damage.chimerical.bashing) - 1;
+			actorData.system.health.damage.chimerical.lethal = parseInt(actorData.system.health.damage.chimerical.lethal) + 1;			
+		}
+		else if (oldState == "x") { 
+			actorData.system.health.damage.chimerical.lethal = parseInt(actorData.system.health.damage.chimerical.lethal) - 1;
+			actorData.system.health.damage.chimerical.aggravated = parseInt(actorData.system.health.damage.chimerical.aggravated) + 1;
+		}
+		else if (oldState == "*") { 
+			actorData.system.health.damage.chimerical.aggravated = parseInt(actorData.system.health.damage.chimerical.aggravated) - 1;
+		}
+
+		if (parseInt(actorData.system.health.damage.chimerical.bashing) < 0) {
+			actorData.system.health.damage.chimerical.bashing = 0;
+		}
+
+		if (parseInt(actorData.system.health.damage.chimerical.lethal) < 0) {
+			actorData.system.health.damage.chimerical.lethal = 0;
+		}
+
+		if (parseInt(actorData.system.health.damage.chimerical.aggravated) < 0) {
+			actorData.system.health.damage.chimerical.aggravated = 0;
+		}
 	}
 
 	actorData = await calculateTotals(actorData);
@@ -802,13 +832,28 @@ export const OnSquareCounterClear = async function (event) {
 		return
 	}
 	else if (oldState == "/") { 
-		actorData.system.health.damage.bashing = parseInt(actorData.system.health.damage.bashing) - 1;
+		if (dataset.type === CONFIG.worldofdarkness.sheettype.mortal) {
+			actorData.system.health.damage.bashing = parseInt(actorData.system.health.damage.bashing) - 1;
+		}
+		if (dataset.type === CONFIG.worldofdarkness.sheettype.changeling) {
+			actorData.system.health.damage.chimerical.bashing = parseInt(actorData.system.health.damage.chimerical.bashing) - 1;
+		}
 	}
 	else if (oldState == "x") { 
-		actorData.system.health.damage.lethal = parseInt(actorData.system.health.damage.lethal) - 1;
+		if (dataset.type === CONFIG.worldofdarkness.sheettype.mortal) {
+			actorData.system.health.damage.lethal = parseInt(actorData.system.health.damage.lethal) - 1;
+		}
+		if (dataset.type === CONFIG.worldofdarkness.sheettype.changeling) {
+			actorData.system.health.damage.chimerical.lethal = parseInt(actorData.system.health.damage.chimerical.lethal) - 1;
+		}
 	}
 	else if (oldState == "*") { 
-		actorData.system.health.damage.aggravated = parseInt(actorData.system.health.damage.aggravated) - 1;
+		if (dataset.type === CONFIG.worldofdarkness.sheettype.mortal) {
+			actorData.system.health.damage.aggravated = parseInt(actorData.system.health.damage.aggravated) - 1;
+		}
+		if (dataset.type === CONFIG.worldofdarkness.sheettype.changeling) {
+			actorData.system.health.damage.chimerical.aggravated = parseInt(actorData.system.health.damage.chimerical.aggravated) - 1;
+		}
 	}
 
 	actorData = await calculateTotals(actorData);
@@ -832,15 +877,33 @@ export const OnDotCounterChange = async function (event, target) {
 	const path = (parent_dataset.name || "").split(".");
 	const itemid = dataset.itemid ?? parent_dataset.itemid;
 
-	if (this.locked) {
+	let item = undefined;
+
+	if ((this.locked) && (!itemid)) {
 		ui.notifications.warn(game.i18n.localize("wod.system.sheetlocked"));
 		return;
+	}
+	else if ((this.locked)) {
+		item = await this.actor.getEmbeddedDocument("Item", itemid);
+
+		if (item.type !== "Advantage") {
+			ui.notifications.warn(game.i18n.localize("wod.system.sheetlocked"));
+			return;
+		}
+
+		if (path[1] != "temporary") {
+			ui.notifications.warn(game.i18n.localize("wod.system.sheetlocked"));
+			return;
+		}
 	}
 
 	let newValue = (index === 0 && getNested(this.actor.system, path) === 1) ? 0 : index + 1;
 
 	if (itemid) {
-		let item = await this.actor.getEmbeddedDocument("Item", itemid);
+		if (item === undefined) {
+			item = await this.actor.getEmbeddedDocument("Item", itemid);
+		}
+
 		const itemData = foundry.utils.duplicate(item);
 
 		// Handle if temporary value of an Advantage can't be higher then permanent.
@@ -859,7 +922,8 @@ export const OnDotCounterChange = async function (event, target) {
 		setNested(itemData, path, newValue);		
 
 		await item.update(itemData);
-	} else {
+	} 
+	else {
 		if (index < 0 || index >= steps.length) return;
 		let actorData = foundry.utils.duplicate(this.actor);
 		setNested(actorData, path, newValue);
@@ -892,7 +956,7 @@ export const OnItemCreate = async function (event, target) {
 	let splatname = ( this.actor.system.settings.variantsheet === "" ? this.actor.system.settings.splat.toLowerCase() : this.actor.system.settings.variantsheet.toLowerCase());
 	let sheettype = ( splatname === "pc" ? "mortal" : splatname);
 
-	if (sheettype == CONFIG.worldofdarkness.sheettype.changingbreed) {
+	if ((sheettype == CONFIG.worldofdarkness.sheettype.changingbreed) && (sheettype == CONFIG.worldofdarkness.splat.changingbreed) ) {
 		sheettype = CONFIG.worldofdarkness.sheettype.werewolf;
 	}
 
@@ -1362,6 +1426,39 @@ export function calculateParadoxChange(oldState, quintessenceTemporary, paradoxT
 	
 	return null;
 }
+
+export const OnHandleImbalance = async function (event, target) {
+	event.preventDefault();
+
+	const element = event.currentTarget;
+	const type = target.dataset.type;
+	let index = parseInt(target.dataset.index);
+	const itemid = target.dataset.itemid;
+
+	const willpower = this.actor.items.get(itemid);
+	let itemData = foundry.utils.duplicate(willpower);
+
+	let clickvalue = willpower.system.permanent - index;
+
+	if ((clickvalue == 1) && (willpower.system.imbalance == 1)) {
+		itemData.system.imbalance = 0;
+	}
+	else if (index > willpower.system.permanent) {
+		itemData.system.imbalance = 0;
+	}
+	else if (clickvalue == 0) {
+		itemData.system.imbalance = 1;
+	}
+	else if (clickvalue == willpower.system.imbalance) {
+		itemData.system.imbalance -= 1;
+	}
+	else {
+		itemData.system.imbalance = clickvalue;
+	}
+
+	await willpower.update(itemData);	
+	this.render();
+};
 
 /**
  * Uppdatera token ikon baserat på aktiv shapeform för PC Actors

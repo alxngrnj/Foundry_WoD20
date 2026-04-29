@@ -14,7 +14,8 @@ export default class DropHelper {
         if ((actor.type != "PC") && 
             ((droppedItem.type === "Ability") || 
                 (droppedItem.type === "Advantage") ||
-                (droppedItem.type === "Sphere") || 
+                (droppedItem.type === "Sphere") ||
+                (droppedItem.type === "Realm") ||
                 (droppedItem.type === "Splat"))) {
             let translation = game.i18n.localize("wod.labels.drop.nopcactor");
             translation = translation.replace("{1}", droppedItem.type);
@@ -56,6 +57,13 @@ export default class DropHelper {
 
         if (droppedItem.type === "Sphere") {
             ui.notifications.warn(game.i18n.localize("wod.labels.drop.dropsphere"));
+
+            itemData.system.isremovable = true;
+            return;
+        }
+
+        if (droppedItem.type === "Realm") {
+            ui.notifications.warn(game.i18n.localize("wod.labels.drop.droprealm"));
 
             itemData.system.isremovable = true;
             return;
@@ -1227,11 +1235,56 @@ export default class DropHelper {
         return mergedData;
     }
 
+    static getGenerationTemplate() {
+        return {
+                    label: "wod.bio.vampire.generation",
+                    value: 13,
+                    mod: 0,
+                    type: "select",                
+                    listdata: "Generation"
+                }; 
+    }
+
+    /**
+     * Splat item `system.bio`: {@link foundry.data.fields.ArrayField} of {@link foundry.data.fields.ObjectField} (same storage idea as `system.abilities`).
+     * @param {Item} item
+     * @returns {object[]}
+     */
+    static splatBioTemplateArray(item) {
+        const b = item?.system?.bio;
+        return Array.isArray(b) ? b : [];
+    }
+
     static async PopulateBio(actor, item) {
         const era = item.system.settings.era;
         const splat = item.system.settings.id;
-        const game = item.system.settings.game;
-        const variant = item.system.settings.variant;   
+
+        const bioArr = this.splatBioTemplateArray(item);
+
+        if (bioArr.length > 0) {
+            const biolist = {};
+            for (const entry of bioArr) {
+                const rawKey = typeof entry?.key === "string" ? entry.key : "";
+                const rawId = typeof entry?.id === "string" ? entry.id : "";
+                const fromLabel =
+                    typeof entry?.label === "string" && entry.label.includes(".")
+                        ? entry.label.split(".").pop()
+                        : "";
+                const fieldKey = rawKey || rawId || fromLabel || "";
+                if (!fieldKey) continue;
+                if (rawKey === "generation" || rawId === "generation") {
+                    biolist.generation = foundry.utils.deepClone(this.getGenerationTemplate());
+                } else {
+                    biolist[fieldKey] = {
+                        label: entry.label ?? "",
+                        value: entry.value ?? "",
+                        type: entry.type || "input",
+                        listdata: entry.listdata ?? ""
+                    };
+                }
+            }
+            return biolist;
+        }
 
         let biolist = CONFIG.worldofdarkness.sheetv2.bio?.[era]?.[splat];
 
@@ -1242,12 +1295,62 @@ export default class DropHelper {
                 biolist = {};
             }
         }
-    
-        // Keep field.listdata as string (e.g. "AffiliationList", "Generation")
-        // The actual list will be looked up dynamically in template using listData[field.listdata]
-        // No need to populate the list here - it will be done in prepareBioContext or template
-        
-        return biolist;
+
+        return foundry.utils.deepClone(biolist);
+    }
+
+    /**
+     * Reorder SplatItem `system.bio` (array of plain objects; see splat item TypeDataModel).
+     * Same drop-position rules as ReorderEmbeddedItemsInList.
+     * @param {Item} item
+     * @param {DragEvent} event
+     * @param {{ documentid: string, list: string, bioIndex?: number }} data
+     * @param {{ itemClass: string, dropArea: string, sheet?: Application }} options
+     */
+    static async ReorderBioFields(item, event, data, options) {
+        if (data.documentid !== item.id && data.documentid !== item._id) return false;
+        if (data.list !== "system.bio") return false;
+
+        const list = foundry.utils.duplicate(this.splatBioTemplateArray(item));
+        const rawIdx = data.bioIndex ?? data.bioindex;
+        const draggedIndex = typeof rawIdx === "number" ? rawIdx : parseInt(String(rawIdx), 10);
+        if (!Number.isInteger(draggedIndex) || draggedIndex < 0 || draggedIndex >= list.length) return false;
+
+        const dropTarget = event.target.closest(options.itemClass);
+        let targetIndex;
+
+        const rawDropBio =
+            dropTarget?.dataset?.bioIndex ??
+            dropTarget?.dataset?.bioindex ??
+            dropTarget?.getAttribute?.("data-bio-index");
+        if (rawDropBio !== undefined && rawDropBio !== "") {
+            targetIndex = parseInt(String(rawDropBio), 10);
+            if (!Number.isInteger(targetIndex) || targetIndex < 0 || targetIndex >= list.length) return false;
+            const rect = dropTarget.getBoundingClientRect();
+            const midpoint = rect.top + rect.height / 2;
+            if (event.clientY > midpoint) {
+                targetIndex++;
+            }
+        } else {
+            const container = event.target.closest(`[data-droparea="${options.dropArea}"]`);
+            if (!container) return false;
+            targetIndex = list.length;
+        }
+
+        if (targetIndex === draggedIndex || targetIndex === draggedIndex + 1) return false;
+
+        const [moved] = list.splice(draggedIndex, 1);
+        let adjustedTargetIndex = targetIndex;
+        if (draggedIndex < targetIndex) {
+            adjustedTargetIndex--;
+        }
+        list.splice(adjustedTargetIndex, 0, moved);
+
+        await item.update({ "system.bio": list }, { diff: false });
+        if (options.sheet) {
+            options.sheet.render();
+        }
+        return true;
     }
 
     static async PopulateAbility(loadedData, ability) {
@@ -1460,7 +1563,7 @@ export default class DropHelper {
             }
             // Handle powers/spheres
             if (data.list === "system.powers") {
-                return (item.type === "Sphere" || item.type === "Power");
+                return (item.type === "Sphere" || item.type === "Power" || item.type === "Realm");
             }
             // Add more types here as needed
             return false;

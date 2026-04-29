@@ -12,8 +12,10 @@
 import { makeLocalizedOptionMap, selectPlaceholder } from "./utils.js";
 
 export function getChangingBreedLists(changingbreed) {
+  changingbreed = changingbreed.toLowerCase(); // Normalize input for case-insensitive matching
+
   switch (changingbreed) {
-    case "Ajaba":
+    case "ajaba":
       return {
         BreedList: makeLocalizedOptionMap([
           "wod.bio.breedname.homid",
@@ -26,7 +28,7 @@ export function getChangingBreedLists(changingbreed) {
           "wod.bio.aspectname.dusk"
         ])
       };
-    case "Ananasi":
+    case "ananasi":
       return {
         BreedList: makeLocalizedOptionMap([
           "wod.bio.breedname.homid",
@@ -43,16 +45,19 @@ export function getChangingBreedLists(changingbreed) {
           "wod.bio.factionname.wyrsta"
         ])
       };
-    case "Apis":
+    case "apis":
       return {
-        BreedList: makeLocalizedOptionMap(["wod.bio.breedname.homid", "wod.bio.breedname.bos"]),
+        BreedList: makeLocalizedOptionMap([
+          "wod.bio.breedname.homid", 
+          "wod.bio.breedname.bos"
+        ]),
         AuspiceList: makeLocalizedOptionMap([
           "wod.bio.auspicename.twilight",
           "wod.bio.auspicename.solar",
           "wod.bio.auspicename.lunar"
         ])
       };
-    case "Bastet":
+    case "bastet":
       return {
         BreedList: makeLocalizedOptionMap([
           "wod.bio.breedname.homid",
@@ -76,9 +81,12 @@ export function getChangingBreedLists(changingbreed) {
           "wod.bio.tribename.swara"
         ])
       };
-    case "Corax":
+    case "corax":
       return {
-        BreedList: makeLocalizedOptionMap(["wod.bio.breedname.homid", "wod.bio.breedname.corvid"]),
+        BreedList: makeLocalizedOptionMap([
+          "wod.bio.breedname.homid", 
+          "wod.bio.breedname.corvid"
+        ]),
         TribeList: makeLocalizedOptionMap([
           "wod.bio.tribename.chasers",
           "wod.bio.tribename.leshy",
@@ -90,7 +98,7 @@ export function getChangingBreedLists(changingbreed) {
           "wod.bio.tribename.tulugaq"
         ])
       };
-    case "Grondr":
+    case "grondr":
       return {
         BreedList: makeLocalizedOptionMap([
           "wod.bio.breedname.homid",
@@ -98,9 +106,12 @@ export function getChangingBreedLists(changingbreed) {
           "wod.bio.breedname.scrofa"
         ])
       };
-    case "Gurahl":
+    case "gurahl":
       return {
-        BreedList: makeLocalizedOptionMap(["wod.bio.breedname.homid", "wod.bio.breedname.ursine"]),
+        BreedList: makeLocalizedOptionMap([
+          "wod.bio.breedname.homid", 
+          "wod.bio.breedname.ursine"
+        ]),
         AuspiceList: makeLocalizedOptionMap([
           "wod.bio.auspicename.arcas",
           "wod.bio.auspicename.uzmati",
@@ -115,7 +126,7 @@ export function getChangingBreedLists(changingbreed) {
           "wod.bio.tribename.riverkeepers"
         ])
       };
-    case "Kitsune":
+    case "kitsune":
       return {
         BreedList: makeLocalizedOptionMap([
           "wod.bio.breedname.kojin",
@@ -129,7 +140,7 @@ export function getChangingBreedLists(changingbreed) {
           "wod.bio.pathname.eji"
         ])
       };
-    case "Mokole":
+    case "mokole":
       return {
         BreedList: makeLocalizedOptionMap([
           "wod.bio.breedname.homid",
@@ -157,7 +168,7 @@ export function getChangingBreedLists(changingbreed) {
           "wod.bio.varnaname.unktehi"
         ])
       };
-    case "Nagah":
+    case "nagah":
       return {
         BreedList: makeLocalizedOptionMap([
           "wod.bio.breedname.balaram",
@@ -171,11 +182,14 @@ export function getChangingBreedLists(changingbreed) {
           "wod.bio.auspicename.kali"
         ])
       };
-    case "Nuwisha":
+    case "nuwisha":
       return {
-        BreedList: makeLocalizedOptionMap(["wod.bio.breedname.homid", "wod.bio.breedname.latrani"])
+        BreedList: makeLocalizedOptionMap([
+          "wod.bio.breedname.homid",  
+          "wod.bio.breedname.latrani"
+        ])
       };
-    case "Ratkin":
+    case "ratkin":
       return {
         BreedList: makeLocalizedOptionMap([
           "wod.bio.breedname.homid",
@@ -193,9 +207,12 @@ export function getChangingBreedLists(changingbreed) {
           "wod.bio.aspectname.twitchers"
         ])
       };
-    case "Rokea":
+    case "rokea":
       return {
-        BreedList: makeLocalizedOptionMap(["wod.bio.breedname.homid", "wod.bio.breedname.squamus"]),
+        BreedList: makeLocalizedOptionMap([
+          "wod.bio.breedname.homid", 
+          "wod.bio.breedname.squamus"
+        ]),
         AuspiceList: {
           "": selectPlaceholder("wod.labels.select"),
           Brightwaters: game.i18n.localize("wod.bio.auspicename.brightwaters"),

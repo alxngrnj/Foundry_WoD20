@@ -18,6 +18,10 @@
             {{> "systems/worldofdarkness/templates/actor/parts/power_spheres.hbs" spheres=spheres actor=actor config=config}}
         {{/if}}
 
+        {{#if actor.system.settings.hasrealms}}
+            {{> "systems/worldofdarkness/templates/actor/parts/power_realms.hbs" realms=realms actor=actor config=config}}
+        {{/if}}
+
         {{#each powerSections as |section|}}
             {{#if section.condition}}
                 
@@ -90,11 +94,11 @@
                                 <span class="sheet-banner-text">{{localize section.localizeKey}}</span>
                             </div>
 
-                            <div class="item-column" style="{{calculateHight 'rotes' ../rotes}}">
+                            <div class="item-column">
 
                                 {{#each section.data.items as |item id|}}
 
-                                    <div style="width:50%">
+                                    <div>
                                         {{> "systems/worldofdarkness/templates/actor/parts/power_listpower.hbs" 
                                             item=item config=../../config actor=../../actor locked=../../locked showclear=false}}
                                     </div>

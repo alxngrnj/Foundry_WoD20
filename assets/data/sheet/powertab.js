@@ -9,6 +9,9 @@ export const datapowertab = {
         mage: {
             primary: ["rotes", "resonances"],
         },
+        changeling: {
+            primary: ["arts"],
+        },
         mortal: {
             primary: [],
         },
@@ -21,6 +24,7 @@ export const datapowertab = {
             "rites",
             "rotes",
             "resonances",
+            "arts",
             "numinas"
         ],
         unsorted: {

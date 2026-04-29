@@ -1,4 +1,4 @@
-{{#if actor.system.listdata.settings.haschimericalhealth}}
+{{#if actor.system.settings.usechimerical}}
     <div class="clearareaBox armor headlineRowBackground splatFont">
         <div class="pullLeft armor-placebox">&nbsp;</div>
         <div class="pullLeft centerText headlineList armor-type-width">{{localize "wod.health.normal"}}</div>
@@ -13,7 +13,7 @@
     <div class="width-valuebox topwrapper">{{localize "wod.health.soak"}} {{firstLetter (localize "wod.health.lethal")}}</div>
     <div class="width-valuebox rightwrapper">{{localize "wod.health.soak"}} {{firstLetter (localize "wod.health.aggravated")}}</div>
 
-    {{#if actor.system.listdata.settings.haschimericalhealth}}
+    {{#if actor.system.settings.usechimerical}}
         <div class="width-valuebox leftwrapper">{{localize "wod.health.soak"}} {{firstLetter (localize "wod.health.bashing")}}</div>
         <div class="width-valuebox topwrapper">{{localize "wod.health.soak"}} {{firstLetter (localize "wod.health.lethal")}}</div>
         <div class="width-valuebox rightwrapper">{{localize "wod.health.soak"}} {{firstLetter (localize "wod.health.aggravated")}}</div>
@@ -40,10 +40,10 @@
                 <div class="width-iconbox draggable"><i class="icon fa-solid fa-grip-vertical"></i></div>
                 
                 <div class="width-namebox">{{shorten item.name 18}}</div>
-                <div class="width-valuebox {{#if ../actor.system.listdata.settings.haschimericalhealth}}wrapperboxleft{{/if}}">{{item.system.soak.bashing}}</div>
+                <div class="width-valuebox {{#if ../actor.system.settings.usechimerical}}wrapperboxleft{{/if}}">{{item.system.soak.bashing}}</div>
                 <div class="width-valuebox">{{item.system.soak.lethal}}</div>
-                <div class="width-valuebox {{#if ../actor.system.listdata.settings.haschimericalhealth}}wrapperboxright{{/if}}">{{item.system.soak.aggravated}}</div>
-                {{#if ../actor.system.listdata.settings.haschimericalhealth}}
+                <div class="width-valuebox {{#if ../actor.system.settings.usechimerical}}wrapperboxright{{/if}}">{{item.system.soak.aggravated}}</div>
+                {{#if ../actor.system.settings.usechimerical}}
                     <div class="width-valuebox wrapperboxleft">{{item.system.soak.chimerical.bashing}}</div>
                     <div class="width-valuebox">{{item.system.soak.chimerical.lethal}}</div>
                     <div class="width-valuebox wrapperboxright">{{item.system.soak.chimerical.aggravated}}</div>

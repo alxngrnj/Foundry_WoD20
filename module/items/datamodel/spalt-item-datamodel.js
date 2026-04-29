@@ -68,6 +68,8 @@ export default class SplatDataModel extends foundry.abstract.TypeDataModel {
 
         schema.reference = new fields.StringField({...valueString});
 
+        schema.description = new fields.HTMLField();
+
         schema.bio = new fields.ArrayField(
             new fields.ObjectField({
                 initial: {},
@@ -107,9 +109,5 @@ export default class SplatDataModel extends foundry.abstract.TypeDataModel {
     }
 
     static async initialize() {
-    }
-
-    static migrateData(source) {
-        return super.migrateData(source);
     }
 }

@@ -18,7 +18,7 @@
 
             {{else if (eq field.type "select")}}
 
-                <div class="bioInformationArea floating-label-group {{#if (eq field.label "wod.bio.vampire.generation")}}half{{/if}}" data-area="generation">
+                <div class="bioInformationArea floating-label-group {{#if (eq key "generation")}}half{{else}}{{#if (eq field.label "wod.bio.vampire.generation")}}half{{/if}}{{/if}}" data-area="generation">
                     {{#if ../locked}}
                         <input class="sheet-infoValues" type="text" value="{{lookupListData ../listData field.listdata field.value}}" autofocus required />
                     {{else}}
@@ -29,7 +29,7 @@
 					<span class="floating-label">{{localize field.label}}</span>
 				</div>
 
-                {{#if (eq field.label "wod.bio.vampire.generation")}}
+                {{#if (eq key "generation")}}
                     <div style="top: -25px; left: 85px; position: relative;">
                         <i class="fa-solid fa-square-minus pointer" title="{{localize 'wod.bio.vampire.lowergeneration'}}" data-action="generationChange" data-source="reduce" data-field-key="{{key}}" aria-hidden="true"></i>
                         <i class="fa-solid fa-eraser pointer" title="{{localize 'wod.bio.vampire.cleargeneration'}}" data-action="generationChange" data-source="clear" data-field-key="{{key}}" aria-hidden="true"></i>
@@ -37,6 +37,16 @@
                             <span>-{{field.mod}}</span>
                         {{/if}}
                     </div>
+                {{else}}
+                    {{#if (eq field.label "wod.bio.vampire.generation")}}
+                    <div style="top: -25px; left: 85px; position: relative;">
+                        <i class="fa-solid fa-square-minus pointer" title="{{localize 'wod.bio.vampire.lowergeneration'}}" data-action="generationChange" data-source="reduce" data-field-key="{{key}}" aria-hidden="true"></i>
+                        <i class="fa-solid fa-eraser pointer" title="{{localize 'wod.bio.vampire.cleargeneration'}}" data-action="generationChange" data-source="clear" data-field-key="{{key}}" aria-hidden="true"></i>
+                        {{#if field.mod}}
+                            <span>-{{field.mod}}</span>
+                        {{/if}}
+                    </div>
+                    {{/if}}
                 {{/if}}
 
             {{/if}}

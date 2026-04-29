@@ -71,7 +71,7 @@ export class DialogSoakRoll extends FormApplication {
             }
         }
 
-        if (actortype != CONFIG.worldofdarkness.sheettype.changingbreed.toLowerCase()) {
+        if ((actortype != CONFIG.worldofdarkness.sheettype.changingbreed.toLowerCase()) && (actortype != CONFIG.worldofdarkness.splat.changingbreed.toLowerCase())) {
             data.object.sheettype = actortype + "Dialog";
         }
         else {

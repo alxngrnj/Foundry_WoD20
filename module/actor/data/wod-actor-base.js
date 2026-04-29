@@ -186,8 +186,9 @@ export class WoDActor extends Actor {
             const abilities = (this?.items || []).filter(item => item.type === "Ability");
             const advantages = (this?.items || []).filter(item => item.type === "Advantage");
             const spheres = (this?.items || []).filter(item => item.type === "Sphere");
+            const realms = (this?.items || []).filter(item => item.type === "Realm");
             const powers = (this?.items || []).filter(item => item.type === "Power" && item.system.secondaryabilityid === "");
-            const allpowers = (this?.items || []).filter(item => item.type === "Power" || item.type === "Sphere" || item.type === "Rote");
+            const allpowers = (this?.items || []).filter(item => item.type === "Power" || item.type === "Sphere" || item.type === "Realm" || item.type === "Rote");
             const shapes = actorData.items.filter(item => item.type === "Trait" && (item.system.type === "wod.types.shapeform"));
             const resonances = actorData.items.filter(item => item.type === "Trait" && item.system?.type === "wod.types.resonance");            
 
@@ -292,7 +293,13 @@ export class WoDActor extends Actor {
 
                 // set max value in virtues correctly
                 if (actorData.system.advantages[key].system.group === "virtue") {
-                    traitMax = actorData.system.settings.powers.defaultmaxvalue;
+
+                    if (CONFIG.worldofdarkness.virtuesLimit) {
+                        traitMax = actorData.system.settings.powers.defaultmaxvalue;
+                    }
+                    else {
+                        traitMax = 5;
+                    }  
 
                     if (adv.system.max != traitMax) {
                         itemList.push({
@@ -342,6 +349,12 @@ export class WoDActor extends Actor {
                 }
             }
 
+            // for (const realm of realms) {
+            //     if (realm.system.max !== traitMax) {
+            //         itemList.push({ _id: realm._id, "system.max": traitMax });
+            //     }
+            // }
+
             for (const power of powers) {
                 if (power.system.max !== traitMax) {
                     itemList.push({ _id: power._id, "system.max": traitMax });
@@ -358,6 +371,7 @@ export class WoDActor extends Actor {
             actorData.system.settings.hasspheres = false;
             actorData.system.settings.hasrotes = false;
             actorData.system.settings.hasnuminas = false;
+            actorData.system.settings.hasrealms = false;
 
             for (const power of allpowers) {
                 if (power.system.type === "wod.types.discipline") {
@@ -383,6 +397,9 @@ export class WoDActor extends Actor {
                 }
                 if (power.type === "Rote") {
                     actorData.system.settings.hasrotes = true;
+                }
+                if (power.type === "Realm") {
+                    actorData.system.settings.hasrealms = true;
                 }
             }            
 
@@ -1474,6 +1491,10 @@ export class WoDActor extends Actor {
 
     // Function to sort out the correct visible name of the Actor's renown
     GetShifterRenownName(type, renown) {
+        if (this.type === "PC") {
+            return "";
+        }
+
         renown = renown.toLowerCase();
 
         let newtext = renown;
@@ -1592,9 +1613,22 @@ export class WoDActor extends Actor {
     // Function to get the correct name of the Actor's rank
     GetShifterRank() {
         try {
-            const rank = parseInt(this.system.renown.rank);
+            let rank = 0;
+            let type = "";
+            let variant = "";
 
-            if (this.type == CONFIG.worldofdarkness.sheettype.werewolf) {
+            if ((this.type == "PC") && (this.system?.advantages?.rank !== undefined)) {
+                rank = parseInt(this.system.advantages.rank.system.permanent);
+                type = this.system.settings.splat.toLowerCase();
+                variant = this.system.settings.variant;
+            }
+            else if (this.type !== "PC") {
+                rank = parseInt(this.system.renown.rank);
+                type = this.type.toLowerCase();
+                variant = this.system.changingbreed;
+            }
+
+            if (type == CONFIG.worldofdarkness.splat.werewolf) {
                 if (rank == 0) return game.i18n.localize("wod.advantages.ranknames.garou.rank0");
                 if (rank == 1) return game.i18n.localize("wod.advantages.ranknames.garou.rank1");
                 if (rank == 2) return game.i18n.localize("wod.advantages.ranknames.garou.rank2");
@@ -1603,43 +1637,43 @@ export class WoDActor extends Actor {
                 if (rank == 5) return game.i18n.localize("wod.advantages.ranknames.garou.rank5");
                 if (rank == 6) return game.i18n.localize("wod.advantages.ranknames.garou.rank6");
             }
-            if (this.type == CONFIG.worldofdarkness.sheettype.changingbreed) {
-                if (this.system.changingbreed == "Bastet") {
+            if ((type == CONFIG.worldofdarkness.sheettype.changingbreed) || (type == CONFIG.worldofdarkness.splat.changingbreed)) {
+                if (variant == "bastet") {
                     if (rank == 1) return game.i18n.localize("wod.advantages.ranknames.bastet.rank1");
                     if (rank == 2) return game.i18n.localize("wod.advantages.ranknames.bastet.rank2");
                     if (rank == 3) return game.i18n.localize("wod.advantages.ranknames.bastet.rank3");
                     if (rank == 4) return game.i18n.localize("wod.advantages.ranknames.bastet.rank4");
                     if (rank == 5) return game.i18n.localize("wod.advantages.ranknames.bastet.rank5");
                 }
-                if (this.system.changingbreed == "Corax") {
+                if (variant == "corax") {
                     if (rank == 1) return game.i18n.localize("wod.advantages.ranknames.corax.rank1");
                     if (rank == 2) return game.i18n.localize("wod.advantages.ranknames.corax.rank2");
                     if (rank == 3) return game.i18n.localize("wod.advantages.ranknames.corax.rank3");
                     if (rank == 4) return game.i18n.localize("wod.advantages.ranknames.corax.rank4");
                     if (rank == 5) return game.i18n.localize("wod.advantages.ranknames.corax.rank5");
                 }
-                if (this.system.changingbreed == "Gurahl") {
+                if (variant == "gurahl") {
                     if (rank == 1) return game.i18n.localize("wod.advantages.ranknames.gurahl.rank1");
                     if (rank == 2) return game.i18n.localize("wod.advantages.ranknames.gurahl.rank2");
                     if (rank == 3) return game.i18n.localize("wod.advantages.ranknames.gurahl.rank3");
                     if (rank == 4) return game.i18n.localize("wod.advantages.ranknames.gurahl.rank4");
                     if (rank == 5) return game.i18n.localize("wod.advantages.ranknames.gurahl.rank5");
                 }
-                if (this.system.changingbreed == "Kitsune") {
+                if (variant == "kitsune") {
                     if (rank == 1) return game.i18n.localize("wod.advantages.ranknames.kitsune.rank1");
                     if (rank == 2) return game.i18n.localize("wod.advantages.ranknames.kitsune.rank2");
                     if (rank == 3) return game.i18n.localize("wod.advantages.ranknames.kitsune.rank3");
                     if (rank == 4) return game.i18n.localize("wod.advantages.ranknames.kitsune.rank4");
                     if (rank == 5) return game.i18n.localize("wod.advantages.ranknames.kitsune.rank5");
                 }
-                if (this.system.changingbreed == "Mokole") {
+                if (variant == "mokole") {
                     if (rank == 1) return game.i18n.localize("wod.advantages.ranknames.mokole.rank1");
                     if (rank == 2) return game.i18n.localize("wod.advantages.ranknames.mokole.rank2");
                     if (rank == 3) return game.i18n.localize("wod.advantages.ranknames.mokole.rank3");
                     if (rank == 4) return game.i18n.localize("wod.advantages.ranknames.mokole.rank4");
                     if (rank == 5) return game.i18n.localize("wod.advantages.ranknames.mokole.rank5");
                 }
-                if (this.system.changingbreed == "Nagah") {
+                if (variant == "nagah") {
                     if (rank == 1) return game.i18n.localize("wod.advantages.ranknames.nagah.rank0");
                     if (rank == 1) return game.i18n.localize("wod.advantages.ranknames.nagah.rank1");
                     if (rank == 2) return game.i18n.localize("wod.advantages.ranknames.nagah.rank2");
@@ -1648,7 +1682,7 @@ export class WoDActor extends Actor {
                     if (rank == 5) return game.i18n.localize("wod.advantages.ranknames.nagah.rank5");
                     if (rank == 1) return game.i18n.localize("wod.advantages.ranknames.nagah.rank6");
                 }
-                if (this.system.changingbreed == "Ratkin") {
+                if (variant == "ratkin") {
                     if (rank == 1) return game.i18n.localize("wod.advantages.ranknames.ratkin.rank1");
                     if (rank == 2) return game.i18n.localize("wod.advantages.ranknames.ratkin.rank2");
                     if (rank == 3) return game.i18n.localize("wod.advantages.ranknames.ratkin.rank3");

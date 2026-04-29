@@ -1,6 +1,11 @@
 <section class="tab {{tab.cssClass}}" data-tab="{{tab.id}}" data-group="{{tab.group}}">				
 
-	<div class="dialog-area">			
+	<div class="dialog-area">	
+
+		<div class="infobox bioInformationArea floating-label-group">
+			<input class="sheet-infoValues editable" name="system.label" type="text" value="{{item.system.label}}" data-dtype="String" autocomplete="off" autofocus required />
+			<span class="floating-label">{{localize "wod.labels.ability.sheetname"}}</span>
+		</div>		
 
 		{{#if (not hasActor)}}
 
@@ -9,12 +14,6 @@
 				<span class="floating-label">{{localize "wod.labels.ability.id"}}</span>
 			</div>
 			<div class="information-area">{{localize "wod.labels.ability.idhint"}}</div>
-
-			<div class="infobox bioInformationArea floating-label-group">
-				<input class="sheet-infoValues editable" name="system.label" type="text" value="{{item.system.label}}" data-dtype="String" autocomplete="off" autofocus required />
-				<span class="floating-label">{{localize "wod.labels.ability.sheetname"}}</span>
-			</div>
-
 
 			<div class="infobox bioInformationArea floating-label-group">
 				<input class="sheet-infoValues editable" type="text" value="{{item.system.value}}" data-dtype="Number" autocomplete="off" autofocus required />

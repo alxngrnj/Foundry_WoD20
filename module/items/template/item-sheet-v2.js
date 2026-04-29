@@ -85,7 +85,7 @@ export default class WoDItemSheetV2 extends HandlebarsApplicationMixin(foundry.a
         data.isCharacter = this.isCharacter;
         data.isGM = this.isGM;     
 
-        //console.log("Context data:", this);
+        console.log("Context data:", this.item);
 
         return {
             ...data
@@ -95,7 +95,11 @@ export default class WoDItemSheetV2 extends HandlebarsApplicationMixin(foundry.a
     static async onSubmitItemForm (event, form, formData) {
 		const target = event.target;
 		
-		if (target.tagName === 'INPUT') {
+		if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+			if (!target.name) {
+				return;
+			}
+
 			let value
 
 			// Handle numbers and strings properly
@@ -155,7 +159,8 @@ export default class WoDItemSheetV2 extends HandlebarsApplicationMixin(foundry.a
     }
 
     _onDragStart(event) {
-        const dataset = event.target.dataset;
+        const dataset =
+            event.target.closest("[data-drag]")?.dataset ?? event.currentTarget?.dataset ?? event.target.dataset;
 
         const data = {
             documentid: dataset.documentid,
@@ -186,6 +191,7 @@ export default class WoDItemSheetV2 extends HandlebarsApplicationMixin(foundry.a
     async _onSortingItem(event, data) {
         const item = this.item;
         if (data.documentid !== item._id) return;
+        if (typeof data.field !== "string" || typeof data.list !== "string") return;
 
         const fields = data.field.split(".");
         const datalist = data.list.split(".");

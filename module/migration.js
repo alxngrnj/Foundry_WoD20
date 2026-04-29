@@ -2634,6 +2634,7 @@ export  const updates = async () => {
     let patch500 = false;
     let patch600 = false;
     let patch700 = false;
+    let patch710 = false;
 
     let newfunctions = "";
 
@@ -2658,6 +2659,7 @@ export  const updates = async () => {
         patch500 = game.settings.get('worldofdarkness', 'patch500');
         patch600 = game.settings.get('worldofdarkness', 'patch600');
         patch700 = game.settings.get('worldofdarkness', 'patch700');
+        patch710 = game.settings.get('worldofdarkness', 'patch710');
     } 
     catch (e) {
     }
@@ -2807,6 +2809,15 @@ export  const updates = async () => {
         newfunctions += '<li>[MtA] You can now roll rotes on PC Actors</li>';
     }
 
+    if (!patch710) {
+        game.settings.set('worldofdarkness', 'patch710', true);
+
+        newfunctions += '<li>Handle bio fields in the template item directly.</li>';
+        newfunctions += '<li>[CtD]] Added template items in compendium for Changelings the Dreaming.</li>';
+        newfunctions += '<li>[WtA] Added template items in compendium for Changing breeds.</li>';                
+        newfunctions += '<li>[WtA] Added template items in compendium for Savage Age Changing breeds.</li>';                
+    }
+
     if (newfunctions == "") {
         newfunctions += 'Issues fixed in version:<br />';        
 
@@ -2900,7 +2911,7 @@ export  const updates = async () => {
 
     const headline = "Version "+migrationVersion+" installed";
 
-    let message = 'New version of the system has been installed. All new functions, alterations and bug fixes can be read in detail at <a href="https://github.com/JohanFalt/Foundry_WoD20/wiki/Changelog#fix-of-v60">Changelog</a>.<br /><br />';
+    let message = 'New version of the system has been installed. All new functions, alterations and bug fixes can be read in detail at <a href="https://github.com/JohanFalt/Foundry_WoD20/wiki/Changelog#fix-of-v71">Changelog</a>.<br /><br />';
     message += 'If you find any problems, are missing things or just would like a feature that the System is lacking, please report these <a href="https://github.com/JohanFalt/Foundry_WoD20/issues">HERE</a><br /><br />';
     message += 'If you wish to read about the system you can do so <a href="https://github.com/JohanFalt/Foundry_WoD20/wiki">HERE</a><br /><br />';
 

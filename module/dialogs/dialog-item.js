@@ -61,7 +61,7 @@ export class DialogItem extends FormApplication {
         data.actorData = this.actor.system;
         data.config = CONFIG.worldofdarkness;
 
-        if (this.actor.type != CONFIG.worldofdarkness.sheettype.changingbreed) {
+        if ((this.actor.type != CONFIG.worldofdarkness.sheettype.changingbreed) && (this.actor.type != CONFIG.worldofdarkness.splat.changingbreed)) {
             data.object.sheettype = this.actor.type.toLowerCase() + "Dialog";
         }
         else {

@@ -97,7 +97,16 @@ export const systemSettings = function() {
 			"2": "-2",
 			"3": "-3"
 		}
-	});
+	});    
+
+	game.settings.register("worldofdarkness", "successesToDamageRolls", {
+		name: game.i18n.localize('wod.settings.successesdamage'),
+		hint: game.i18n.localize('wod.settings.successesdamagehint'),
+		scope: "world",
+		config: false,
+		default: true,
+		type: Boolean,
+	});	
 
     game.settings.register("worldofdarkness", "useOnesDamage", {
 		name: game.i18n.localize('wod.settings.useOnesDamage'),
@@ -310,6 +319,19 @@ export const systemSettings = function() {
 	});
 
     // END HUNTER SETTINGS
+
+    // VAMPIRE SETTINGS
+
+    game.settings.register("worldofdarkness", "virtuesLimit", {
+		name: game.i18n.localize('wod.settings.virtueslimit'),
+		hint: game.i18n.localize('wod.settings.virtueslimithint'),
+		scope: "world",
+		config: false,
+		default: false,
+		type: Boolean,
+	});
+
+    // END VAMPIRE SETTINGS
 
     // WEREWOLF SETTINGS
 
@@ -601,6 +623,15 @@ export const systemSettings = function() {
 		type: Boolean,
 	});
 
+    game.settings.register("worldofdarkness", "patch710", {
+		name: "patch710",
+		hint: "patch710",
+		scope: "world",
+		config: false,
+		default: false,
+		type: Boolean,
+	});
+
     /* Messages */
     game.settings.register("worldofdarkness", "readmessage01", {
 		name: "Read message01",
@@ -657,6 +688,15 @@ export const systemSettings = function() {
         restricted: true,
     });
 
+    game.settings.registerMenu("worldofdarkness", "vampireSettings", {
+        name: game.i18n.localize('wod.settings.vampiresettings'),
+        hint: game.i18n.localize('wod.settings.vampiresettingshint'),
+        label: game.i18n.localize('wod.settings.vampiresettings'),
+        icon: "icon fa-solid fa-gear",
+        type: Vampire,
+        restricted: true,
+    });
+
     game.settings.registerMenu("worldofdarkness", "werewolfSettings", {
         name: game.i18n.localize('wod.settings.werewolfsettings'),
         hint: game.i18n.localize('wod.settings.werewolfsettingshint'),
@@ -710,7 +750,7 @@ export class Rules extends FormApplication {
         if (hasPermission) {
             for (let s of game.settings.settings.values()) {
                 // Exclude settings the user cannot change
-                if ((s.key == "advantageRolls") || (s.key == "specialityLevel") || (s.key == "attributeSettings") || (s.key == "fifthEditionWillpowerSetting") || (s.key == "willpowerBonusDice")) {
+                if ((s.key == "advantageRolls") || (s.key == "specialityLevel") || (s.key == "attributeSettings") || (s.key == "fifthEditionWillpowerSetting") || (s.key == "willpowerBonusDice"))  {
                     // Update setting data
                     const setting = foundry.utils.duplicate(s);
 
@@ -756,7 +796,7 @@ export class Rules extends FormApplication {
   
     /** @override */
     async _updateObject(event, formData) {
-        for (let [k, v] of Object.entries(flattenObject(formData))) {
+        for (let [k, v] of Object.entries(foundry.utils.flattenObject(formData))) {
             let s = game.settings.settings.get(k);
             let current = game.settings.get("worldofdarkness", s.key);
 
@@ -801,7 +841,8 @@ export class Dices extends FormApplication {
                         (s.key == "specialityReduceDiff") || 
                         (s.key == "specialityAllowBotch") ||                         
                         (s.key == "tenAddSuccess") || 
-                        (s.key == "explodingDice"))  {
+                        (s.key == "explodingDice") || 
+                        (s.key == "successesToDamageRolls"))  {
                     // Update setting data
                     const setting = foundry.utils.duplicate(s);
 
@@ -847,7 +888,7 @@ export class Dices extends FormApplication {
   
     /** @override */
     async _updateObject(event, formData) {
-        for (let [k, v] of Object.entries(flattenObject(formData))) {
+        for (let [k, v] of Object.entries(foundry.utils.flattenObject(formData))) {
             let s = game.settings.settings.get(k);
             let current = game.settings.get("worldofdarkness", s.key);
 
@@ -929,7 +970,7 @@ export class Era extends FormApplication {
   
     /** @override */
     async _updateObject(event, formData) {
-        for (let [k, v] of Object.entries(flattenObject(formData))) {
+        for (let [k, v] of Object.entries(foundry.utils.flattenObject(formData))) {
             let s = game.settings.settings.get(k);
             let current = game.settings.get("worldofdarkness", s.key);
 
@@ -1011,7 +1052,7 @@ export class Demon extends FormApplication {
   
     /** @override */
     async _updateObject(event, formData) {
-        for (let [k, v] of Object.entries(flattenObject(formData))) {
+        for (let [k, v] of Object.entries(foundry.utils.flattenObject(formData))) {
             let s = game.settings.settings.get(k);
             let current = game.settings.get("worldofdarkness", s.key);
 
@@ -1094,7 +1135,89 @@ export class Hunter extends FormApplication {
   
     /** @override */
     async _updateObject(event, formData) {
-        for (let [k, v] of Object.entries(flattenObject(formData))) {
+        for (let [k, v] of Object.entries(foundry.utils.flattenObject(formData))) {
+            let s = game.settings.settings.get(k);
+            let current = game.settings.get("worldofdarkness", s.key);
+
+            if (v !== current) {
+                await game.settings.set("worldofdarkness", s.key, v);
+            }
+        }
+    }
+}
+
+export class Vampire extends FormApplication {
+    /** @override */
+    static get defaultOptions() {
+        return foundry.utils.mergeObject(super.defaultOptions, {
+            id: "vampire",
+            classes: ["wod20rule-dialog"],
+            title: game.i18n.localize("wod.settings.vampiresettings"),
+            template: "systems/worldofdarkness/templates/dialogs/dialog-settings-rule.hbs",
+        });
+    }
+  
+    getData(options) {
+        const hasPermission = game.user.can("SETTINGS_MODIFY");  
+        const data = {
+            system: { 
+                title: game.system.title, 
+                menus: [], 
+                settings: [] 
+            }
+        };
+
+        // Classify all settings
+        if (hasPermission) {
+            for (let s of game.settings.settings.values()) {
+                // Exclude settings the user cannot change
+                if ((s.key == "virtuesLimit")) {
+                    // Update setting data
+                    const setting = foundry.utils.duplicate(s);
+
+                    setting.name = game.i18n.localize(setting.name);
+                    setting.hint = game.i18n.localize(setting.hint);
+                    setting.value = game.settings.get("worldofdarkness", setting.key);
+                    setting.type = s.type instanceof Function ? s.type.name : "String";
+                    setting.scope = "worldofdarkness";
+                    setting.isBoolean = s.type === Boolean;
+                    setting.isSelect = s.choices !== undefined;
+
+                    data.system.settings.push(setting);
+                } 
+            }
+        }
+  
+        // Return data
+        return {
+            user: game.user,
+            canConfigure: hasPermission,
+            systemTitle: game.system.title,
+            data: data
+        };
+    }
+  
+    activateListeners(html) {
+        super.activateListeners(html);
+        html.find(".submenu button").click(this._onClickSubmenu.bind(this));
+    }
+  
+    /**
+     * Handle activating the button to configure User Role permissions
+     * @param event {Event} The initial button click event
+     * @private
+     */
+    _onClickSubmenu(event) {
+        event.preventDefault();
+        const menu = game.settings.menus.get(event.currentTarget.dataset.key);
+        if (!menu) return ui.notifications.error("No submenu found for the provided key");
+        const app = new menu.type();
+        return app.render(true);
+    }
+  
+    /** @override */
+    async _updateObject(event, formData) {
+        for (let [k, v] of Object.entries(foundry.utils.flattenObject(formData))) {
             let s = game.settings.settings.get(k);
             let current = game.settings.get("worldofdarkness", s.key);
 
@@ -1176,7 +1299,7 @@ export class Werewolf extends FormApplication {
   
     /** @override */
     async _updateObject(event, formData) {
-        for (let [k, v] of Object.entries(flattenObject(formData))) {
+        for (let [k, v] of Object.entries(foundry.utils.flattenObject(formData))) {
             let s = game.settings.settings.get(k);
             let current = game.settings.get("worldofdarkness", s.key);
 
@@ -1258,7 +1381,7 @@ export class Permissions extends FormApplication {
   
     /** @override */
     async _updateObject(event, formData) {
-        for (let [k, v] of Object.entries(flattenObject(formData))) {
+        for (let [k, v] of Object.entries(foundry.utils.flattenObject(formData))) {
             let s = game.settings.settings.get(k);
             let current = game.settings.get("worldofdarkness", s.key);
 
@@ -1340,7 +1463,7 @@ export class Graphics extends FormApplication {
   
     /** @override */
     async _updateObject(event, formData) {
-        for (let [k, v] of Object.entries(flattenObject(formData))) {
+        for (let [k, v] of Object.entries(foundry.utils.flattenObject(formData))) {
             let s = game.settings.settings.get(k);
             let current = game.settings.get("worldofdarkness", s.key);
 

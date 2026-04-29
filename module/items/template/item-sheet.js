@@ -73,6 +73,7 @@ export default class WoDItemSheet extends foundry.appv1.sheets.ItemSheet {
 		data.isCharacter = this.isCharacter;
 		data.isGM = game.user.isGM;	
 		data.hasChimerical = false;
+		data.iswerewolf = false;
 		//data.canEdit = this.item.isOwner || game.user.isGM;		
 
 		if (this.item.actor != null) {
@@ -80,22 +81,25 @@ export default class WoDItemSheet extends foundry.appv1.sheets.ItemSheet {
 			data.actor = this.item.actor;
 
 			if (data.actor.type == "PC") {
-				data.hasChimerical = false;
+				data.hasChimerical = data.actor.system.settings.usechimerical;
+				data.iswerewolf = data.actor.splat == CONFIG.worldofdarkness.splat.werewolf || data.actor.splat == CONFIG.worldofdarkness.splat.changingbreed;
 			}
 			else if (data.actor.system?.listdata?.settings?.haschimericalhealth != undefined) {
 				data.hasChimerical = data.actor.system?.listdata?.settings?.haschimericalhealth;
-			}
-			
+				data.iswerewolf = data.actor.type == CONFIG.worldofdarkness.sheettype.werewolf || data.actor.type == CONFIG.worldofdarkness.splat.changingbreed;
+			}			
 		}
 		else {
 			data.hasActor = false;
+			data.hasChimerical = true;
+			data.iswerewolf = true;
 		}
 
 		// set color based on item type
 		if (this.item.sheetType == undefined) {
 			data.sheettype = "";
 		}
-		else if (this.item.sheetType != CONFIG.worldofdarkness.sheettype.changingbreed) {
+		else if ((this.item.sheetType != CONFIG.worldofdarkness.sheettype.changingbreed) && (this.item.sheetType != CONFIG.worldofdarkness.splat.changingbreed) ) {
             data.sheettype = this.item.sheetType.toLowerCase() + "Item";
         }
         else {
@@ -104,7 +108,7 @@ export default class WoDItemSheet extends foundry.appv1.sheets.ItemSheet {
 
 		// if that fails set color based on actor type
 		if ((data.sheettype == "") && (data.hasActor)) {
-			if (data.actor.type != CONFIG.worldofdarkness.sheettype.changingbreed) {
+			if ((data.actor.type != CONFIG.worldofdarkness.sheettype.changingbreed) && (data.actor.type != CONFIG.worldofdarkness.splat.changingbreed)) {
 				data.sheettype = data.actor.type.toLowerCase() + "Item";
 			}
 			else {
@@ -131,8 +135,8 @@ export default class WoDItemSheet extends foundry.appv1.sheets.ItemSheet {
 			data.item.system.details = await foundry.applications.ux.TextEditor.implementation.enrichHTML(data.item.system.details, {async: true});
 		}
 
-		// console.log(`${data.item.name} - (${data.item.type})`);
-		// console.log(data.item);
+		console.log(`${data.item.name} - (${data.item.type})`);
+		console.log(data.item);
 		
 		return data;
 	}

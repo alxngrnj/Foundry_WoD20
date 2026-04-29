@@ -42,7 +42,7 @@
             <div class="width-smallbox centerText">
                 {{#if (eq item.system.difficulty "-1")}}
                     {{localize "wod.labels.varies"}}
-                {{else}}
+                {{else if (gt item.system.difficulty 0)}}
                     {{item.system.difficulty}}
                 {{/if}}
             </div>

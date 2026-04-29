@@ -82,7 +82,7 @@ export class DialogPowerSelection extends HandlebarsApplicationMixin(Application
             this.actor.system.settings.variantsheet.toLowerCase());
         let sheettype = (splatname === "pc" ? "mortal" : splatname);
         
-        if (sheettype == CONFIG.worldofdarkness.sheettype.changingbreed) {
+        if ((sheettype == CONFIG.worldofdarkness.sheettype.changingbreed) || (sheettype == CONFIG.worldofdarkness.splat.changingbreed)) {
             sheettype = CONFIG.worldofdarkness.sheettype.werewolf;
         }
         

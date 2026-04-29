@@ -930,6 +930,13 @@ export default class ItemHelper {
 					localizeKey: "wod.power.disciplines",
 					condition: actor.system.settings.hasdisciplines && context.disciplines?.length
 				},
+				arts: {
+					id: "arts",
+					template: "hierarchical",
+					data: { items: context.arts },
+					localizeKey: "wod.power.arts",
+					condition: actor.system.settings.hasrealms && context.arts?.length
+				},
 				numinas: {
 					id: "numinas",
 					template: "hierarchical",
@@ -1018,6 +1025,18 @@ export default class ItemHelper {
 				data: { items: context.unsorteddisciplines },
 				localizeKey: "wod.power.unsorteddisciplines",
 				sortAction: "SortDisciplinePower",
+				condition: true
+			});
+		}
+
+		if (context.unsortedarts?.length) {
+			sections.push({
+				id: "unsortedarts",
+				priority: config.unsorted?.priority || 99,
+				template: "unsorted",
+				data: { items: context.unsortedarts },
+				localizeKey: "wod.power.unsortedarts",
+				sortAction: "SortArtPower",
 				condition: true
 			});
 		}

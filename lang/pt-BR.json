@@ -1,4 +1,4 @@
-﻿{
+{
 	"TYPES.Actor.Changeling": "Changeling: O Sonhar",
 	"TYPES.Actor.Changing Breed": "Criações em Mudança",
 	"TYPES.Actor.Demon": "Demônio: A Queda",
@@ -26,6 +26,7 @@
 	"TYPES.Item.Advantage": "Vantagem",
 	"TYPES.Item.Ability": "Habilidade",
 	"TYPES.Item.Sphere": "Esfera",
+	"TYPES.Item.Realm": "Reino",
 	"wod": {
 		"system": {
 			"world": "Mundo atualizado!",
@@ -133,6 +134,8 @@
 			"huntersettingshint": "Configurações do mundo usadas em Caçador: A Revanche.",
 			"werewolfsettings": "Configurações de Lobisomem: O Apocalipse",
 			"werewolfsettingshint": "Configurações do mundo usadas em Lobisomem: O Apocalipse.",
+			"vampiresettings": "Vampire the Masquerade Settings",
+			"vampiresettingshint": "World settings used in Vampire the Masquerade.",
 			"edgesettings": "Recebendo configuração de Limiar",
 			"edgesettingshints": "De acordo com as regras do Caçador: A Revanche, existem dois meios de receber Limiares, usando Virtudes é o meio padrão using Virtues are the default one.",
 			"ragesettings": "Usar penalidade de Fúria",
@@ -507,6 +510,7 @@
 			},
 			"jamak": "Jamak",
 			"yava": "Yava",
+			"fera": "Fera",
 			"werewolf": {
 				"blackfuries": "Fúrias Negras",
 				"bonegnawer": "Roedores de Ossos",
@@ -1222,7 +1226,14 @@
 			"apterous": "Apterous",
 			"megachiroptera": "Megachiroptera",
 			"aperius": "Aperius",
-			"daeodon": "Daeodon"
+			"daeodon": "Daeodon",
+			"scrofa": "Scrofa",
+			"naria": "Naria",
+			"alkab": "Alkab",
+			"aureus": "Aureus",
+			"dirus": "Dirus",
+			"mortalseeming": "Mortal seeming",
+			"faemien": "Fae mien"
 		},
 		"power": {
 			"nopowers": "Nenhum poder selecionado",
@@ -1401,7 +1412,7 @@
 			"level": "Nível",
 			"rank": "Ranque",
 			"other": "Outro",
-			"Combat": "Combate",
+			"combatlabel": "Combate",
 			"both": "Ambos",
 			"nochange": "Sem Mudança",
 			"usewillpower": "Usar Força de Vontade",
@@ -1621,7 +1632,25 @@
 				"variant": "Nome da variante",
 				"varianthint": "Qual tipo de variante da ficha de modelo esta ficha representa. O padrão é geral.",
 				"era": "Era do jogo",
-				"erahint": "Qual era do jogo a ficha está definida."
+				"erahint": "Qual era do jogo a ficha está definida.",
+				"biofields": "Bio template fields",
+				"biofieldshint": "Field order on the character bio tab matches this order. Drag rows to reorder.",
+				"biofieldkey": "Field id",
+				"bioaddfield": "Add field",
+				"bioremovefield": "Remove",
+				"biolabel": "Label",
+				"biovalue": "Default value",
+				"biotype": "Field type",
+				"biolistdata": "List data key",
+				"biotypeinput": "Text input",
+				"biotypeselect": "Dropdown",
+				"biotypetextbox": "Rich text",
+				"bionofields": "No bio fields defined (CONFIG fallback applies when empty).",
+				"biofieldgeneration": "Generation do not need configurating.",
+				"biodone": "Done",
+				"bioneedkey": "Enter a field id before adding.",
+				"biokeyinvalid": "Field id cannot contain spaces or dots.",
+				"biokeyexists": "A field with id \"{key}\" already exists."
 			},
 			"new": {
 				"create": "Criar item",
@@ -1808,7 +1837,8 @@
 				"numina": "Editar numina",
 				"numinapower": "Editar ritual/magia",
 				"horror": "Editar horror",
-				"stain": "Editar mácula"
+				"stain": "Editar mácula",
+				"realm": "Edit realm"
 			},
 			"remove": {
 				"headline": "Remover",
@@ -1887,6 +1917,7 @@
 				"nopcactor": "Item type {1} are not supported on this type of Actor {2} requires Actor type PC.",
 				"advantageexists": "Esta Vantagem {1}} já existe na ficha e não pode ser adicionada.",
 				"dropsphere": "Ainda não há função para adicionar Esferas manualmente.",
+				"droprealm": "No function to add Realms manually yet.",
 				"warning": "Aviso!",
 				"warningtext": "Se você alterar o Modelo, todas as configurações e alterações que você fez serão redefinidas de acordo com o novo Modelo adicionado",
 				"splatinstalled": "Modelo '{1}' adicionado a '{2}'."

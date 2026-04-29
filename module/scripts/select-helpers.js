@@ -885,6 +885,13 @@ export default class SelectHelper {
                 if (feraLists.AuspiceList) listData.AuspiceList = feraLists.AuspiceList;
                 if (feraLists.TribeList) listData.TribeList = feraLists.TribeList;
             }
+            //else if ((data.type == CONFIG.worldofdarkness.sheettype.changingbreed) && (data.system.settings.variant != undefined)) {
+            else if ((data.type === "PC") && (data.system.settings.splat === CONFIG.worldofdarkness.splat.changingbreed) && (data.system.settings.variant != undefined)) {
+                const feraLists = this.GetChangingBreedLists(data.system.settings.variant);
+                if (feraLists.BreedList) listData.BreedList = feraLists.BreedList;
+                if (feraLists.AuspiceList) listData.AuspiceList = feraLists.AuspiceList;
+                if (feraLists.TribeList) listData.TribeList = feraLists.TribeList;
+            }
 
             // Mage the Ascension
             // ******** AFFILIATIONS
@@ -934,7 +941,13 @@ export default class SelectHelper {
             // ******** PATHS 
             listData.PathList = this.GetVampirePaths(data, isCharacter);  
 
-            if (data.type == CONFIG.worldofdarkness.sheettype.changeling) {
+            if ((data.type == "PC") && (data.system.settings.splat === CONFIG.worldofdarkness.splat.changeling)) {
+                listData.SeemingList = this.GetChangelingSeemingList();
+                listData.CourtList = this.GetChangelingCourtList();
+                //listData.KithList = this.GetChangelingKithList(data);
+                listData.AffinityRealmList = this.GetChangelingAffinityRealmList(data);
+            }
+            else if ((data.type !== "PC") && (data.type == CONFIG.worldofdarkness.sheettype.changeling)) {
                 listData.SeemingList = this.GetChangelingSeemingList();
                 listData.CourtList = this.GetChangelingCourtList();
                 listData.KithList = this.GetChangelingKithList(data);
@@ -1109,32 +1122,32 @@ export default class SelectHelper {
                 {
                     value: "attack_buff", 
                     label: game.i18n.localize("wod.labels.bonus.attackbuff"),
-                    group: game.i18n.localize("wod.labels.combat")
+                    group: game.i18n.localize("wod.labels.combatlabel")
                 },
                 {
                     value: "attack_diff", 
                     label: game.i18n.localize("wod.labels.bonus.attackdiff"),
-                    group: game.i18n.localize("wod.labels.combat")
+                    group: game.i18n.localize("wod.labels.combatlabel")
                 },
                 {
                     value: "soak_buff", 
                     label: game.i18n.localize("wod.labels.bonus.soakbonus"),
-                    group: game.i18n.localize("wod.labels.combat")
+                    group: game.i18n.localize("wod.labels.combatlabel")
                 },
                 {
                     value: "soak_diff", 
                     label: game.i18n.localize("wod.labels.bonus.soakdiffbonus"),
-                    group: game.i18n.localize("wod.labels.combat")
+                    group: game.i18n.localize("wod.labels.combatlabel")
                 },
                 {
                     value: "health_buff", 
                     label: game.i18n.localize("wod.labels.bonus.healthbuff"),
-                    group: game.i18n.localize("wod.labels.combat")
+                    group: game.i18n.localize("wod.labels.combatlabel")
                 },
                 {
                     value: "initiative_buff", 
                     label: game.i18n.localize("wod.labels.bonus.initbonus"),
-                    group: game.i18n.localize("wod.labels.combat")
+                    group: game.i18n.localize("wod.labels.combatlabel")
                 },
                 {
                     value: "frenzy_buff", 

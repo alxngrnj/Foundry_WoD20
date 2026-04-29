@@ -979,7 +979,8 @@ input.sheet-infoWidth {
 .wod20 .advantage-item,
 .wod20 .power-item,
 .wod20 .feature-item,
-.wod20 .ability-item {
+.wod20 .ability-item,
+.wod20 .bio-field-item {
   transition: border-color 0.15s ease;
   border-top: 2px solid transparent;
   border-bottom: 2px solid transparent;
@@ -988,21 +989,95 @@ input.sheet-infoWidth {
 .wod20 .advantage-item.drag-over-top,
 .wod20 .power-item.drag-over-top,
 .wod20 .feature-item.drag-over-top,
-.wod20 .ability-item.drag-over-top {
+.wod20 .ability-item.drag-over-top,
+.wod20 .bio-field-item.drag-over-top {
   border-top: 2px solid var(--main-full-color);
 }
 
 .wod20 .advantage-item.drag-over-bottom,
 .wod20 .power-item.drag-over-bottom,
 .wod20 .feature-item.drag-over-bottom,
-.wod20 .ability-item.drag-over-bottom {
+.wod20 .ability-item.drag-over-bottom,
+.wod20 .bio-field-item.drag-over-bottom {
   border-bottom: 2px solid var(--main-full-color);
 }
 
 .wod20 [data-droparea="advantages"].drag-active,
 .wod20 [data-droparea="features"].drag-active,
-.wod20 [data-droparea="powers"].drag-active {
+.wod20 [data-droparea="powers"].drag-active,
+.wod20 [data-droparea="bio"].drag-active {
   background-color: rgba(var(--main-full-color-rgb, 128, 0, 0), 0.05);
+}
+
+/* Splat item — Bio tab: align with feature rows (flex-row line-height, columns) */
+.wod20.wod-item .splat-bio-tab-area .bio-field-item.feature-item {
+  margin-bottom: 6px;
+}
+
+.wod20.wod-item .splat-bio-tab-area > .flex-row {
+  align-items: center;
+  gap: 6px;
+}
+
+.wod20.wod-item .splat-bio-tab-area .bio-field-col {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.wod20.wod-item .splat-bio-tab-area .bio-field-col-id {
+  flex: 0 0 88px;
+  min-width: 72px;
+}
+
+.wod20.wod-item .splat-bio-tab-area .bio-field-col-label {
+  flex: 0 1 250px;
+  min-width: 72px;
+  max-width: 250px;
+}
+
+.wod20.wod-item .splat-bio-tab-area .bio-field-col-type {
+  flex: 0 0 100px;
+  min-width: 88px;
+}
+
+.wod20.wod-item .splat-bio-tab-area .bio-field-col-value {
+  flex: 0 0 150px;
+  min-width: 150px;
+}
+
+.wod20.wod-item .splat-bio-tab-area .bio-field-col-list {
+  flex: 0 0 150px;
+  min-width: 150px;
+}
+
+.wod20.wod-item .splat-bio-tab-area .bio-field-col-actions {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  min-width: 52px;
+}
+
+.wod20.wod-item .splat-bio-tab-area .bio-field-header .headlineGroup {
+  margin-bottom: 0;
+}
+
+/* Bio tab columns: override global .wod-item … width:200px so controls fit each column */
+.wod20.wod-item .splat-bio-tab-area .bio-field-col input.sheet-infoValues,
+.wod20.wod-item .splat-bio-tab-area .bio-field-col select.sheet-infoValues,
+.wod20.wod-item .splat-bio-tab-area .bio-field-col textarea.sheet-infoValues {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.wod20.wod-item .splat-bio-tab-area .bio-field-col input.sheet-infoValues.smallbox {
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Highlight ability drop zones when dragging */
@@ -1917,7 +1992,7 @@ input.sheet-infoWidth {
 }
 
 .wod20 .armor-placebox {
-  width: 150px;
+  width: 190px;
 }
 
 .wod20 .armor-largeBox {
@@ -2181,6 +2256,8 @@ input.sheet-infoWidth {
 .wod20 .pc-power-shapes .shape-panel-title {
   flex: 1 1 auto;
   min-width: 0;
+  width: auto;
+  height: auto;
   font-size: var(--wod-font-base);
   /* font-weight: 600; */
   line-height: 1.3;
@@ -2218,6 +2295,21 @@ input.sheet-infoWidth {
 .wod20 .pc-power-shapes .shape-panel-header-actions .icon {
   margin-left: 0;
   margin-right: 0;
+}
+
+/* Changeling Realms (power_realms.hbs): float + 3×33% was built for 9 Spheres; with 6 Realms the block sat left. Center the column group; rows stay left-aligned. */
+.wod20 .pc-power-realms {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  text-align: left;
+}
+
+.wod20 .pc-power-realms .magic-statArea.pullLeft {
+  float: none !important;
+  box-sizing: border-box;
+  flex: 0 0 33%;
+  max-width: 33%;
 }
 
 /* END - Items */

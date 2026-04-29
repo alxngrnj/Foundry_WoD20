@@ -1,6 +1,7 @@
 import WoDItemSheetV2 from "./item-sheet-v2.js";
 import SelectHelper from "../../scripts/select-helpers.js";
 import DropHelper from "../../scripts/drop-helpers.js";
+import { ActionEdit, ActionRemove, ActionSwitch } from "../../scripts/item-actions.js";
 
 
 const { HandlebarsApplicationMixin } = foundry.applications.api
@@ -18,6 +19,20 @@ export default class SplatItemSheet extends HandlebarsApplicationMixin(WoDItemSh
         this.#dragDrop = this.#createDragDropHandlers();
 	}
 
+    /** Which bio row (array index) is expanded for editing; loose ObjectField entries may omit `key`. */
+    #bioEditIndex = null;
+    #bioAdding = false;
+
+    /** @param {EventTarget|null} target */
+    static #bioRowIndexFromTarget(target) {
+        const el = target && /** @type {HTMLElement} */ (target).closest?.(".bio-field-item");
+        // `data-bio-index` → dataset.bioIndex (not .bioindex)
+        const raw = el?.dataset?.bioIndex ?? el?.dataset?.bioindex ?? el?.getAttribute?.("data-bio-index");
+        if (raw === undefined || raw === "") return -1;
+        const idx = parseInt(String(raw), 10);
+        return Number.isInteger(idx) && idx >= 0 ? idx : -1;
+    }
+
     static DEFAULT_OPTIONS = {
         form: {
             submitOnChange: true,
@@ -26,6 +41,16 @@ export default class SplatItemSheet extends HandlebarsApplicationMixin(WoDItemSh
         position: {
             width: 1000,
             height: 800
+        },
+        actions: {
+            actionEdit: ActionEdit,
+            actionRemove: ActionRemove,
+            actionSwitch: ActionSwitch,
+            splatBioToggleAdd: SplatItemSheet.#onSplatBioToggleAdd,
+            splatBioConfirmAdd: SplatItemSheet.#onSplatBioConfirmAdd,
+            splatBioCancelAdd: SplatItemSheet.#onSplatBioCancelAdd,
+            splatBioToggleEdit: SplatItemSheet.#onSplatBioToggleEdit,
+            splatBioRemoveField: SplatItemSheet.#onSplatBioRemoveField
         }
     }
 
@@ -38,6 +63,9 @@ export default class SplatItemSheet extends HandlebarsApplicationMixin(WoDItemSh
         },
         stats: {
             template: 'systems/worldofdarkness/templates/items/splat-sheet.hbs'
+        },
+        bio: {
+            template: 'systems/worldofdarkness/templates/items/parts/splat-bio-tab.hbs'
         },
         abilities: {
             template: 'systems/worldofdarkness/templates/items/parts/splat-abilities-sheet.hbs'
@@ -58,6 +86,11 @@ export default class SplatItemSheet extends HandlebarsApplicationMixin(WoDItemSh
             id: 'stats',
             group: 'primary',
             title: 'wod.tab.settings'
+        },
+        bio: {
+            id: 'bio',
+            group: 'primary',
+            title: 'wod.tab.bio'
         },
         abilities: {
             id: 'abilities',
@@ -135,6 +168,12 @@ export default class SplatItemSheet extends HandlebarsApplicationMixin(WoDItemSh
         switch (partId) {
             case 'stats':
                 return prepareStatContext(context, item);
+            case 'bio': {
+                const bioContext = await prepareBioContext(context, item);
+                bioContext.bioEditIndex = this.#bioEditIndex;
+                bioContext.bioAdding = this.#bioAdding;
+                return bioContext;
+            }
             case 'abilities':
                 return prepareAbilitiesContext(context, item);
             case 'features':
@@ -156,10 +195,63 @@ export default class SplatItemSheet extends HandlebarsApplicationMixin(WoDItemSh
     }
 
     static async onSubmitItemForm(event, form, formData) {
-		await super.onSubmitItemForm(event, form, formData);
+        const target = event.target;
+        // Provisional "new bio field id" input has no `name`; blur before clicking check
+        // triggers submitOnChange and would otherwise clear #bioAdding / run super with empty name.
+        if (target?.hasAttribute?.("data-splat-new-bio-key")) {
+            return;
+        }
 
-        this.render();
-	}
+        const name = typeof target?.name === "string" ? target.name : "";
+        const bioFieldMatch = /^system\.bio\.(\d+)\.(.+)$/.exec(name);
+        const tag = target?.tagName;
+        const isBioControl =
+            bioFieldMatch &&
+            (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT");
+
+        if (isBioControl) {
+            const sheet = /** @type {SplatItemSheet} */ (this);
+            const index = parseInt(bioFieldMatch[1], 10);
+            const field = bioFieldMatch[2];
+            if (field.includes(".") || !Number.isInteger(index) || index < 0) {
+                await super.onSubmitItemForm(event, form, formData);
+            } else {
+                let value;
+                if (target.type === "number") {
+                    value = parseInt(target.value, 10);
+                } else if (target.type === "checkbox") {
+                    value = target.checked;
+                } else {
+                    value = target.value;
+                }
+
+                const bio = foundry.utils.duplicate(DropHelper.splatBioTemplateArray(sheet.item));
+                if (!bio[index]) {
+                    await super.onSubmitItemForm(event, form, formData);
+                } else {
+                    bio[index] = { ...bio[index], [field]: value };
+                    await sheet.item.update({ "system.bio": bio }, { diff: false });
+                }
+            }
+
+            const sheetAfter = /** @type {SplatItemSheet} */ (this);
+            sheetAfter.#bioEditIndex = null;
+            if (name.startsWith("system.bio.")) {
+                sheetAfter.#bioAdding = false;
+            }
+            await sheetAfter.render();
+            return;
+        }
+
+        await super.onSubmitItemForm(event, form, formData);
+
+        const sheet = /** @type {SplatItemSheet} */ (this);
+        sheet.#bioEditIndex = null;
+        if (name.startsWith("system.bio.")) {
+            sheet.#bioAdding = false;
+        }
+        await sheet.render();
+    }
     
     #dragDrop
 
@@ -186,7 +278,8 @@ export default class SplatItemSheet extends HandlebarsApplicationMixin(WoDItemSh
      * @param {DragEvent} event - The drag start event
      */
     _onDragStart(event) {
-        const dataset = event.target.dataset;
+        const dataset =
+            event.target.closest("[data-drag]")?.dataset ?? event.currentTarget?.dataset ?? event.target.dataset;
 
         // Handle drag to order item lists (advantages, features, powers)
         if (dataset.list === "system.advantages" || dataset.list === "system.features" || dataset.list === "system.powers") {
@@ -198,6 +291,22 @@ export default class SplatItemSheet extends HandlebarsApplicationMixin(WoDItemSh
                 type: "SortOrder"
             }
             event.dataTransfer.setData('text/plain', JSON.stringify(data));
+            return;
+        }
+
+        // Bio rows use data-bio-index (incl. "0"); never fall through to super — that sets type Sort without data-field and breaks _onSortingItem.
+        if (dataset.list === "system.bio") {
+            const idx = SplatItemSheet.#bioRowIndexFromTarget(event.target);
+            if (idx >= 0) {
+                const data = {
+                    documentid: dataset.documentid,
+                    list: "system.bio",
+                    bioIndex: idx,
+                    type: "SortBioFields"
+                };
+                event.dataTransfer.setData("text/plain", JSON.stringify(data));
+                return;
+            }
             return;
         }
 
@@ -216,10 +325,35 @@ export default class SplatItemSheet extends HandlebarsApplicationMixin(WoDItemSh
             // Item position reordering - handled locally
             case 'SortOrder':                
                 return this._onReorderItem(event, data);
+            case "SortBioFields":
+                return this._onReorderBioField(event, data);
             // Dropped Item from compendium/sidebar
             case 'Item':                
                 return this._onDropItem(event, data);
         }
+    }
+
+    /**
+     * @param {DragEvent} event
+     * @param {{ documentid: string, list: string, bioIndex?: number, type: string }} data
+     */
+    async _onReorderBioField(event, data) {
+        if (data.documentid !== this.item.id && data.documentid !== this.item._id) {
+            this.#clearDragOverClasses();
+            return;
+        }
+        await DropHelper.ReorderBioFields(this.item, event, data, {
+            itemClass: ".bio-field-item",
+            dropArea: "bio",
+            sheet: this
+        });
+        this.#clearDragOverClasses();
+    }
+
+    #clearDragOverClasses() {
+        this.element.querySelectorAll(".drag-over-top, .drag-over-bottom, .drag-over").forEach((el) => {
+            el.classList.remove("drag-over-top", "drag-over-bottom", "drag-over");
+        });
     }
 
     /**
@@ -239,7 +373,7 @@ export default class SplatItemSheet extends HandlebarsApplicationMixin(WoDItemSh
         }
         
         // Only handle items of correct type
-        if (data.itemtype !== "Advantage" && data.itemtype !== "Trait" && data.itemtype !== "Sphere") {
+        if (data.itemtype !== "Advantage" && data.itemtype !== "Trait" && data.itemtype !== "Sphere" && data.itemtype !== "Realm") {
             // Clean up on early return
             this.element.querySelectorAll('.drag-over-top, .drag-over-bottom, .drag-over').forEach(el => {
                 el.classList.remove('drag-over-top', 'drag-over-bottom', 'drag-over');
@@ -255,7 +389,7 @@ export default class SplatItemSheet extends HandlebarsApplicationMixin(WoDItemSh
         else if ((data.itemtype === "Feature") || (data.itemtype === "Trait")) {
             itemClass = ".feature-item";
         }
-        else if ((data.itemtype === "Sphere") || (data.itemtype === "Power")) {
+        else if ((data.itemtype === "Sphere") || (data.itemtype === "Realm") || (data.itemtype === "Power")) {
             itemClass = ".power-item";
         }
         else {
@@ -267,7 +401,7 @@ export default class SplatItemSheet extends HandlebarsApplicationMixin(WoDItemSh
         }
 
         let dropArea = data.itemtype.toLowerCase();
-        dropArea = dropArea === "sphere" ? "powers" : dropArea;
+        dropArea = dropArea === "sphere" || dropArea === "realm" ? "powers" : dropArea;
 
         let orderProperty = "system.settings.order";
         orderProperty = data.itemtype === "Trait" ? 'system.order' : orderProperty;
@@ -303,7 +437,7 @@ export default class SplatItemSheet extends HandlebarsApplicationMixin(WoDItemSh
         });
 
         // Item classes that support drag-over feedback
-        const itemClasses = ['.advantage-item', '.feature-item', '.power-item', '.ability-item'];
+        const itemClasses = [".advantage-item", ".feature-item", ".power-item", ".ability-item", ".bio-field-item"];
         
         // Check for any item drop target
         for (const itemClass of itemClasses) {
@@ -363,7 +497,7 @@ export default class SplatItemSheet extends HandlebarsApplicationMixin(WoDItemSh
             update = true;
         }
 
-        if ((droppedItem.type === "Sphere") || (droppedItem.type === "Power")) {
+        if ((droppedItem.type === "Sphere") || (droppedItem.type === "Realm") || (droppedItem.type === "Power")) {
             itemCopy.system.order = itemData.system.powers.length;
             itemData.system.powers.push(itemCopy);            
             update = true;
@@ -373,6 +507,104 @@ export default class SplatItemSheet extends HandlebarsApplicationMixin(WoDItemSh
             await this.item.update(itemData);
             this.render();
         }
+    }
+
+    static async #onSplatBioToggleAdd(event, target) {
+        event.preventDefault();
+        const sheet = /** @type {SplatItemSheet} */ (this);
+        if (sheet.locked) {
+            ui.notifications.warn(game.i18n.localize("wod.system.sheetlocked"));
+            return;
+        }
+        sheet.#bioAdding = !sheet.#bioAdding;
+        if (sheet.#bioAdding) {
+            sheet.#bioEditIndex = null;
+        }
+        await sheet.render();
+    }
+
+    static async #onSplatBioCancelAdd(event, target) {
+        event.preventDefault();
+        const sheet = /** @type {SplatItemSheet} */ (this);
+        sheet.#bioAdding = false;
+        const input = sheet.element?.querySelector("[data-splat-new-bio-key]");
+        if (input) {
+            input.value = "";
+        }
+        await sheet.render();
+    }
+
+    static async #onSplatBioConfirmAdd(event, target) {
+        event.preventDefault();
+        const sheet = /** @type {SplatItemSheet} */ (this);
+        if (sheet.locked) {
+            ui.notifications.warn(game.i18n.localize("wod.system.sheetlocked"));
+            return;
+        }
+        const input = sheet.element.querySelector("[data-splat-new-bio-key]");
+        const key = (input?.value ?? "").trim();
+        if (!key) {
+            ui.notifications.info(game.i18n.localize("wod.labels.splat.bioneedkey"));
+            return;
+        }
+        if (key.includes(".") || /\s/.test(key)) {
+            ui.notifications.warn(game.i18n.localize("wod.labels.splat.biokeyinvalid"));
+            return;
+        }
+        const bio = foundry.utils.duplicate(DropHelper.splatBioTemplateArray(sheet.item));
+        if (bio.some((e) => e?.key === key || e?.id === key)) {
+            ui.notifications.warn(game.i18n.format(game.i18n.localize("wod.labels.splat.biokeyexists"), { key }));
+            return;
+        }
+        bio.push({
+            key,
+            label: "",
+            value: "",
+            type: "input",
+            listdata: ""
+        });
+        await sheet.item.update({ "system.bio": bio }, { diff: false });
+        if (input) {
+            input.value = "";
+        }
+        sheet.#bioAdding = false;
+        sheet.#bioEditIndex = key === "generation" ? null : bio.length - 1;
+        await sheet.render();
+    }
+
+    static async #onSplatBioToggleEdit(event, target) {
+        event.preventDefault();
+        const sheet = /** @type {SplatItemSheet} */ (this);
+        if (sheet.locked) {
+            ui.notifications.warn(game.i18n.localize("wod.system.sheetlocked"));
+            return;
+        }
+        const idx = SplatItemSheet.#bioRowIndexFromTarget(target);
+        if (idx < 0) return;
+        const entry = DropHelper.splatBioTemplateArray(sheet.item)[idx];
+        if (entry?.key === "generation") {
+            return;
+        }
+        sheet.#bioEditIndex = sheet.#bioEditIndex === idx ? null : idx;
+        sheet.#bioAdding = false;
+        await sheet.render();
+    }
+
+    static async #onSplatBioRemoveField(event, target) {
+        event.preventDefault();
+        const sheet = /** @type {SplatItemSheet} */ (this);
+        if (sheet.locked) {
+            ui.notifications.warn(game.i18n.localize("wod.system.sheetlocked"));
+            return;
+        }
+        const idx = SplatItemSheet.#bioRowIndexFromTarget(target);
+        if (idx < 0) return;
+        sheet.#bioEditIndex = null;
+        const bio = foundry.utils.duplicate(DropHelper.splatBioTemplateArray(sheet.item));
+        if (idx >= bio.length) return;
+        bio.splice(idx, 1);
+        await sheet.item.update({ "system.bio": bio }, { diff: false });
+        await sheet.render();
     }
 }
 
@@ -388,7 +620,43 @@ export const prepareStatContext = async function (context, item) {
 export const prepareBioContext = async function (context, item) {
     context.tab = context.tabs.bio;
 
-    context.bio = translateItem(item.system.bio);
+    const bioArr = DropHelper.splatBioTemplateArray(item);
+    context.bioFieldRows = bioArr.map((entry, index) => {
+        const rawKey = typeof entry?.key === "string" ? entry.key : "";
+        const rawId = typeof entry?.id === "string" ? entry.id : "";
+        const key =
+            rawKey ||
+            rawId ||
+            (typeof entry?.label === "string" && entry.label.includes(".")
+                ? entry.label.split(".").pop()
+                : "");
+        const def = {
+            label: entry?.label ?? "",
+            value: entry?.value != null ? String(entry.value) : "",
+            type: entry?.type || "input",
+            listdata: entry?.listdata ?? ""
+        };
+        if (def.type === "select" && (def.listdata === undefined || def.listdata === null)) def.listdata = "";
+        return {
+            index,
+            key,
+            isReservedGeneration: rawKey === "generation",
+            def
+        };
+    });
+
+    context.bioTypeOptions = {
+        input: game.i18n.localize("wod.labels.splat.biotypeinput"),
+        select: game.i18n.localize("wod.labels.splat.biotypeselect"),
+        textbox: game.i18n.localize("wod.labels.splat.biotypetextbox")
+    };
+
+    for (const row of context.bioFieldRows) {
+        row.typeLabel = context.bioTypeOptions[row.def.type] ?? row.def.type;
+        row.displayLabel = row.def.label ? game.i18n.localize(row.def.label) : "";
+        const rawVal = row.def.value != null ? String(row.def.value) : "";
+        row.displayValue = rawVal.length > 50 ? `${rawVal.slice(0, 47)}…` : rawVal;
+    }
 
     return context;
 }

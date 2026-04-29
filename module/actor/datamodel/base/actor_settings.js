@@ -32,6 +32,7 @@ export default class settings extends foundry.abstract.DataModel {
             hasrotes: new fields.BooleanField({initial: false}),
             hasresonances: new fields.BooleanField({initial: false}),
             hasnuminas: new fields.BooleanField({initial: false}),
+            hasrealms: new fields.BooleanField({initial: false}),
 
             version: new fields.StringField({...valueString}),
             era: new fields.StringField({initial: 'wod.era.modern', nullable: false}),

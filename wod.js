@@ -74,7 +74,6 @@ Hooks.once("init", async function() {
 	systemSettings();
 
 	console.log("WoD | Settings registered");
-
 	
 	CONFIG.worldofdarkness = wod;
 	CONFIG.worldofdarkness.sheetv2 = {};
@@ -84,10 +83,12 @@ Hooks.once("init", async function() {
 	CONFIG.worldofdarkness.fifthEditionWillpowerSetting = game.settings.get("worldofdarkness", "fifthEditionWillpowerSetting");
 	CONFIG.worldofdarkness.willpowerBonusDice = game.settings.get("worldofdarkness", "willpowerBonusDice"); 
 	CONFIG.worldofdarkness.rollSettings = game.settings.get('worldofdarkness', 'advantageRolls');
+	CONFIG.worldofdarkness.successesToDamageRolls = game.settings.get('worldofdarkness', 'successesToDamageRolls');
 	CONFIG.worldofdarkness.specialityLevel = game.settings.get('worldofdarkness', 'specialityLevel');
 	CONFIG.worldofdarkness.demonSystemSettings = game.settings.get('worldofdarkness', 'demonSystemSettings');
 	CONFIG.worldofdarkness.hunteredgeSettings = game.settings.get('worldofdarkness', 'hunteredgeSettings');
 	CONFIG.worldofdarkness.wererwolfrageSettings = game.settings.get('worldofdarkness', 'wererwolfrageSettings');
+	CONFIG.worldofdarkness.virtuesLimit = game.settings.get('worldofdarkness', 'virtuesLimit');
 	
 
 	// Roll settings
@@ -190,9 +191,9 @@ Hooks.once("init", async function() {
 	CONFIG.Item.dataModels.Advantage = itemModels.AdvantageDataModel;
 	CONFIG.Item.dataModels.Sphere = itemModels.SphereDataModel;
 	CONFIG.Item.dataModels.Splat = itemModels.SplatDataModel;
+	CONFIG.Item.dataModels.Realm = itemModels.RealmDataModel;
 
 	console.log("WoD | Datamodels Registered");
-	
 	
 	
 
@@ -307,6 +308,11 @@ Hooks.once("init", async function() {
 		makeDefault: true
 	});
 
+	foundry.documents.collections.Items.registerSheet("WoD", itemSheets.RealmItemSheet, {
+		types: ["Realm"],
+		makeDefault: true
+	});
+	
 	foundry.documents.collections.Items.registerSheet("WoD", itemSheets.WoDItemSheet, {
 		types: ["Armor"],
 		makeDefault: true		

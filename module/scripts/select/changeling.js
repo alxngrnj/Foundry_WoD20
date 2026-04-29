@@ -42,7 +42,8 @@ export function getChangelingKithList(actorData) {
   const list = game?.worldofdarkness?.bio?.kith?.[variant];
   if (Array.isArray(list)) {
     for (const kith of list) map[kith] = game.i18n.localize(kith);
-  } else if (list && typeof list === "object") {
+  } 
+  else if (list && typeof list === "object") {
     for (const kith of Object.values(list)) map[kith] = game.i18n.localize(kith);
   }
 
@@ -52,22 +53,39 @@ export function getChangelingKithList(actorData) {
 export function getChangelingAffinityRealmList(actorData) {
   const map = { "": selectPlaceholder("wod.labels.select") };
 
-  // Prefer deriving from actor Trait items (avoids ordering issues in legacy sheet getData).
-  const items = actorData?.items;
+  let items = undefined;
+  
+  if (actorData.type === "PC") {
+    items = actorData?.items;
+  }
+  else {
+    items = actorData?.items;
+  }
+
   if (items && typeof items[Symbol.iterator] === "function") {
     for (const i of items) {
-      if (i?.type === "Trait" && i?.system?.type === "wod.types.realms" && i?.system?.label) {
-        map[i.system.label] = game.i18n.localize(i.system.label);
+      if (actorData.type === "PC") {
+        if (i?.type === "Realm" && i?.system?.label) {
+          map[i.system.label] = game.i18n.localize(i.system.label);
+        }
       }
+      else {
+        if (i?.type === "Trait" && i?.system?.type === "wod.types.realms" && i?.system?.label) {
+          map[i.system.label] = game.i18n.localize(i.system.label);
+        }
+      }
+      
     }
     return map;
   }
 
-  // Fallback: use precomputed listdata if present.
-  const realms = actorData?.system?.listdata?.powers?.arts?.realms;
-  if (Array.isArray(realms)) {
-    for (const realm of realms) {
-      if (realm?.label) map[realm.label] = game.i18n.localize(realm.label);
+  if (actorData.type !== "PC") {
+    // Fallback: use precomputed listdata if present.
+    const realms = actorData?.system?.listdata?.powers?.arts?.realms;
+    if (Array.isArray(realms)) {
+      for (const realm of realms) {
+        if (realm?.label) map[realm.label] = game.i18n.localize(realm.label);
+      }
     }
   }
 

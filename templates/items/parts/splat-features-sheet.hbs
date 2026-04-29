@@ -92,6 +92,18 @@
         </div>
 
         <div class="dialog-area">
+
+            <div class="flex-rows">
+                <label for="data.system.soak.bashing" class="headlineNormal settings-verticalcenter">{{localize "wod.labels.splat.usechimerical"}}</label>
+                <div class="switch settings-leftwidth settings-verticalcenter splatFont bold centerText pointer" data-action="actionSwitch" data-type="system.settings.usechimerical" style="margin-left: 45px;">
+                    {{#if item.system.settings.usechimerical}}
+                        <i class="pointer fa-solid fa-toggle-on"></i>
+                    {{else}}
+                        <i class="pointer fa-solid fa-toggle-off"></i>
+                    {{/if}}
+                </div>
+            </div>
+
             <div class="headlineGroup">{{localize 'wod.health.soak'}}</div>
             <div class="flex-columns">
                 <div class="flex-rows">
@@ -144,22 +156,11 @@
                 </div>			
             </div>	
 
-            <div class="flex-columns">
-                <!-- <div class="flex-rows">
-                    <label for="data.system.soak.bashing" class="headlineNormal settings-leftwidth settings-verticalcenter">LANG: Use chimerical soak</label>
-                    <div class="numberBox headlineNormal centerText">&nbsp;</div>
-                    <div class="switch settings-leftwidth settings-verticalcenter splatFont bold centerText pointer" data-action="actionSwitch" data-type="system.settings.usechimerical">
-                        {{#if item.system.settings.usechimerical}}
-                            <i class="pointer fa-solid fa-toggle-on"></i>
-                        {{else}}
-                            <i class="pointer fa-solid fa-toggle-off"></i>
-                        {{/if}}
-                    </div>
-                </div> -->
+            <div class="flex-columns">                
 
                 {{#if item.system.settings.usechimerical}}
 
-                    <div class="headlineGroup">LANG: Chimerical soak</div>
+                    <div class="headlineGroup">{{localize "wod.health.chimericalsoak"}}</div>
                     <div class="flex-columns">
                         <div class="flex-rows">
                             <div class="settings-leftwidth">&nbsp;</div>

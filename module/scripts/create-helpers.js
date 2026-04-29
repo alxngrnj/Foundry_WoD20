@@ -1360,27 +1360,6 @@ export default class CreateHelper {
 				}
 			};
 		}
-		// if (type == "disciplinepath") {
-		// 	itemData = {
-		// 		name: game.i18n.localize("wod.labels.new.disciplinepath"),
-		// 		type: "Power",
-		// 		system: {
-		// 			game: "vampire",
-		// 			type: "wod.types.disciplinepath"
-		// 		}
-		// 	};
-		// }
-		// if (type == "disciplinepathpower") {
-		// 	itemData = {
-		// 		name: game.i18n.localize("wod.labels.new.disciplinepathpower"),
-		// 		type: "Power",
-		// 		system: {
-		// 			level: 1,
-		// 			game: "vampire",
-		// 			type: "wod.types.disciplinepathpower"
-		// 		}
-		// 	};
-		// }
 		if (type == "ritual") { 	
 			itemData = {
 				name: game.i18n.localize("wod.labels.new.ritual"),
@@ -2028,6 +2007,45 @@ export default class CreateHelper {
 					}
 				}
 			},
+			art: {
+				game: "changeling",
+				button: {
+					label: game.i18n.localize("wod.types.art"),
+					callback: async () => {
+						let itemData = {
+							name: game.i18n.localize("wod.labels.new.art"),
+							type: "Power",
+							system: {
+								game: "changeling",
+								type: "wod.types.art"
+							}
+						};
+
+						await this.CreateItem(actor, itemData);
+						return;
+					}
+				}
+			},
+			artpower: {
+				game: "changeling",
+				button: {
+					label: game.i18n.localize("wod.types.artpower"),
+					callback: async () => {
+						let itemData = {
+							name: game.i18n.localize("wod.labels.new.artpower"),
+							type: "Power",
+							system: {
+								game: "changeling",
+								level: 1,
+								type: "wod.types.artpower"
+							}
+						};
+
+						await this.CreateItem(actor, itemData);
+						return;
+					}
+				}
+			},
 			shapeform: {
 				game: null, // "other"
 				button: {
@@ -2071,6 +2089,12 @@ export default class CreateHelper {
 					}
 				}
 			};
+		}
+
+		// Om PC actor inte har realms så skall arts/artspower inte vara tillgängliga eftersom de kräver realms
+		if (!actor.system.settings.hasrealms) {
+			delete allButtons.art;
+			delete allButtons.artpower;
 		}
 		
 		// Gruppera buttons efter game
@@ -2802,24 +2826,6 @@ export default class CreateHelper {
 					return;
 				}
 			};
-			// buttons.disciplinepath = {
-			// 	label: game.i18n.localize("wod.types.disciplinepath"),
-			// 	callback: async () => {
-			// 		let itemData = await this.CreateItemPower("disciplinepath", system);
-
-			// 		await this.CreateItem(actor, itemData);
-			// 		return;
-			// 	}
-			// };
-			// buttons.disciplinepathpower = {
-			// 	label: game.i18n.localize("wod.types.disciplinepathpower"),
-			// 	callback: async () => {
-			// 		let itemData = await this.CreateItemPower("disciplinepathpower", system);
-
-			// 		await this.CreateItem(actor, itemData);
-			// 		return;
-			// 	}
-			// };
 			buttons.ritual = {
 				label: game.i18n.localize("wod.types.ritual"),
 				callback: async () => {

@@ -48,7 +48,12 @@ export default class PCDataModel extends foundry.abstract.DataModel {
         schema.soak = new fields.SchemaField({
             bashing:  new fields.NumberField({...valueInteger}),
             lethal:  new fields.NumberField({...valueInteger}),
-            aggravated:  new fields.NumberField({...valueInteger})
+            aggravated:  new fields.NumberField({...valueInteger}),
+            chimerical: new fields.SchemaField({
+                bashing:    new fields.NumberField({...valueInteger}),
+                lethal:     new fields.NumberField({...valueInteger}),
+                aggravated: new fields.NumberField({...valueInteger})
+            })
         });
 
         // Same as before
@@ -120,6 +125,12 @@ export default class PCDataModel extends foundry.abstract.DataModel {
     }
 
     static migrateData(source) {
+        if (source?.soak && source.soak.chimerical === undefined) {
+            source.soak.chimerical = { bashing: 0, lethal: 0, aggravated: 0 };
+        }
+        if (source?.health?.damage && source.health.damage.chimerical === undefined) {
+            source.health.damage.chimerical = { bashing: 0, lethal: 0, aggravated: 0 };
+        }
         return super.migrateData(source);
     }
 }

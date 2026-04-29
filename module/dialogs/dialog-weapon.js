@@ -203,7 +203,7 @@ export class DialogWeapon extends FormApplication {
             if (this.actor.system?.listdata?.rangedAbilities.length > 0) 
                 data.config.rangedAbilities = this.actor.system.listdata.rangedAbilities;
 
-            if (data.actorData.type != CONFIG.worldofdarkness.sheettype.changingbreed) {
+            if ((data.actorData.type != CONFIG.worldofdarkness.sheettype.changingbreed) && (data.actorData.type != CONFIG.worldofdarkness.splat.changingbreed)) {
                 data.object.sheettype = data.actorData.type.toLowerCase() + "Dialog";
             }
             else {

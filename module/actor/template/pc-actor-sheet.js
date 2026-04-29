@@ -10,9 +10,26 @@ import { OnDotCounterChange } from "../../scripts/action-helpers.js";
 import { OnActorSwitch } from "../../scripts/action-helpers.js";
 import { OnUseMacro } from "../../scripts/action-helpers.js";
 
-import { OnItemCreate, OnItemEdit, OnItemActive, OnItemSwitch, OnItemDelete, OnRemoveSplat, OnQuintessenceHandling, OnQuintessenceWheelClick, OnParadoxWheelClick, OnFormActivate, OnPowerSort, OnPowerClear, OnGenerationChange, SendChat, RollDice, OnEditImage } from "../../scripts/action-helpers.js";
+import { OnItemCreate, 
+			OnItemEdit, 
+			OnItemActive, 
+			OnItemSwitch, 
+			OnItemDelete, 
+			OnRemoveSplat, 
+			OnQuintessenceHandling, 
+			OnQuintessenceWheelClick, 
+			OnParadoxWheelClick, 
+			OnHandleImbalance,
+			OnFormActivate, 
+			OnPowerSort, 
+			OnPowerClear, 
+			OnGenerationChange, 
+			SendChat, 
+			RollDice, 
+			OnEditImage } from "../../scripts/action-helpers.js";
 
 import { calculateHealth } from "../../scripts/health.js";
+import { calculateTotals } from "../../scripts/totals.js";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api
 
@@ -277,8 +294,8 @@ export default class PCActorSheet extends HandlebarsApplicationMixin(foundry.app
 		
 		data.actor = actor;
 
-		// console.log(`${data.actor.name} - (${data.actor.type} / ${this.splat})`);
-		// console.log(data.actor);
+		console.log(`${data.actor.name} - (${data.actor.type} / ${this.splat})`);
+		console.log(data.actor);
 
 		return {
 			...data
@@ -328,6 +345,9 @@ export default class PCActorSheet extends HandlebarsApplicationMixin(foundry.app
 			target.type === "checkbox" &&
 			allowWhileLocked.has(target.name);
 
+		// if the alteration is of such type a recalculation of totals is needed after the update, so we set a flag to trigger that
+		let runtotals = false;
+
 		if (this.locked && !isAllowedWhileLocked) {
 			ui.notifications.warn(game.i18n.localize("wod.system.sheetlocked"));
 			return;
@@ -361,17 +381,28 @@ export default class PCActorSheet extends HandlebarsApplicationMixin(foundry.app
 
 				// Handle numbers and strings properly
 				if (target.type === 'number') {
-					value = parseInt(target.value)
+					value = parseInt(target.value);
 				} 
 				else if (target.type === 'checkbox') {
-					value = target.checked
+					value = target.checked;
 				} 
 				else {
-					value = target.value
+					if (target.dataset.dtype === "Number") {
+						value = parseInt(target.value);
+						runtotals = true;
+					}
+					else {
+						value = target.value;
+					}					
 				}
 
-				const actorData = foundry.utils.duplicate(this.actor.toObject());
+				let actorData = foundry.utils.duplicate(this.actor.toObject());
 				foundry.utils.setProperty(actorData, target.name, value);
+
+				if (runtotals) {
+					actorData = await calculateTotals(actorData);
+					actorData.system.settings.isupdated = true;
+				}
 				await this.actor.update(actorData);
 			} 
 			else {
@@ -420,6 +451,9 @@ export default class PCActorSheet extends HandlebarsApplicationMixin(foundry.app
 
 		// Quintessence wheel right-click (contextmenu) for paradox
 		this._bindQuintessenceContextMenu(element);
+
+		// Willpower imbalance right-click (contextmenu) for imbalance handling
+		this._bindImbalanceContextMenu(element);
 
 		// Settings sub-tabs
 		this._bindSettingsTabs(element);
@@ -794,7 +828,7 @@ export default class PCActorSheet extends HandlebarsApplicationMixin(foundry.app
 		}
 		
 		// Only handle items of correct type
-		if (data.itemtype !== "Advantage" && data.itemtype !== "Trait" && data.itemtype !== "Sphere") {
+		if (data.itemtype !== "Advantage" && data.itemtype !== "Trait" && data.itemtype !== "Sphere" && data.itemtype !== "Realm") {
 			// Clean up on early return
 			this.element.querySelectorAll('.drag-over-top, .drag-over-bottom, .drag-over').forEach(el => {
 				el.classList.remove('drag-over-top', 'drag-over-bottom', 'drag-over');
@@ -810,7 +844,7 @@ export default class PCActorSheet extends HandlebarsApplicationMixin(foundry.app
 		else if ((data.itemtype === "Feature") || (data.itemtype === "Trait")) {
 			itemClass = ".feature-item";
 		}
-		else if ((data.itemtype === "Sphere") || (data.itemtype === "Power")) {
+		else if ((data.itemtype === "Sphere") || (data.itemtype === "Realm") || (data.itemtype === "Power")) {
 			itemClass = ".power-item";
 		}
 		else {
@@ -822,7 +856,7 @@ export default class PCActorSheet extends HandlebarsApplicationMixin(foundry.app
 		}
 
 		let dropArea = data.itemtype.toLowerCase();
-		dropArea = dropArea === "sphere" ? "powers" : dropArea;
+		dropArea = (dropArea === "sphere" || dropArea === "realm") ? "powers" : dropArea;
 
 		let orderProperty = "system.settings.order";
 		orderProperty = data.itemtype === "Trait" ? 'system.order' : orderProperty;
@@ -852,6 +886,8 @@ export default class PCActorSheet extends HandlebarsApplicationMixin(foundry.app
 	 * @param {HTMLElement} root - The root element to search for quintessence wheel elements
 	 */
 	_bindQuintessenceContextMenu(root) {
+		if (this.actor.system.settings.splat !== CONFIG.worldofdarkness.splat.mage) return;
+
 		const wheelElements = root.querySelectorAll?.(".quintessence > .resource-counter > .resource-value-step");
 		if (!wheelElements?.length) return;
 		
@@ -860,6 +896,26 @@ export default class PCActorSheet extends HandlebarsApplicationMixin(foundry.app
 			el.dataset.contextBound = "true";
 			el.addEventListener("contextmenu", (event) => {
 				OnParadoxWheelClick.call(this, event, event.currentTarget);
+			});
+		});
+	}
+
+	/**
+	 * Imbalance right-click (contextmenu) for willpower.
+	 * Binds contextmenu event listeners to permanent willpower elements for handling imbalance.
+	 * @param {HTMLElement} root - The root element to search for willpower elements
+	 */
+	_bindImbalanceContextMenu(root) {
+		if (this.actor.system.settings.splat !== CONFIG.worldofdarkness.splat.changeling) return;
+
+		const willpowerElements = root.querySelectorAll?.(".willpower > .resource-value > .resource-value-step");
+		if (!willpowerElements?.length) return;
+		
+		willpowerElements.forEach(el => {
+			if (el.dataset.contextBound) return;
+			el.dataset.contextBound = "true";
+			el.addEventListener("contextmenu", (event) => {
+				OnHandleImbalance.call(this, event, event.currentTarget);
 			});
 		});
 	}
@@ -900,10 +956,33 @@ export const getPowertype = function (actor) {
 
 	if (splatname === CONFIG.worldofdarkness.splat.vampire) {
 		powertype = "discipline";
-	} else if (splatname === CONFIG.worldofdarkness.splat.werewolf) {
+	} 
+	else if ((splatname === CONFIG.worldofdarkness.splat.werewolf) || 
+				(splatname === CONFIG.worldofdarkness.splat.changingbreed) || 
+				((actor.system.settings.game === CONFIG.worldofdarkness.splat.werewolf) && (splatname === CONFIG.worldofdarkness.splat.spirit))) {
 		powertype = "gift";
-	} else if (splatname === CONFIG.worldofdarkness.splat.mage) {
+	} 
+	else if ((splatname === CONFIG.worldofdarkness.splat.mage) || 
+				((actor.system.settings.game === CONFIG.worldofdarkness.splat.mage) && (splatname === CONFIG.worldofdarkness.splat.spirit))) {
 		powertype = "magic";
+	}
+	else if (splatname === CONFIG.worldofdarkness.splat.changeling) {
+		powertype = "dreaming";
+	}
+	else if (splatname === CONFIG.worldofdarkness.splat.hunter) {
+		powertype = "edge";
+	}
+	else if (splatname === CONFIG.worldofdarkness.splat.demon) {
+		powertype = "lore";
+	}
+	else if (splatname === CONFIG.worldofdarkness.splat.mummy) {
+		powertype = "scarab";
+	}
+	else if (splatname === CONFIG.worldofdarkness.splat.wraith) {
+		powertype = "death";
+	}
+	else if (splatname === CONFIG.worldofdarkness.splat.exalted) {
+		powertype = "exaltedcharm";
 	}
 
 	return powertype;
@@ -937,8 +1016,9 @@ export const prepareBioContext = async function (context, actor) {
 	// Get listData for bio select fields - same pattern as legacy templates (bio_mage_background.html)
 	// Pass actor directly to SetupItem so functions that need actor data (custom handling) work correctly
 	const splat = getSplat(actor);
-	const actorData = { type: CONFIG.worldofdarkness.sheettype[splat] || splat, system: actor.system };
-	context.listData = SelectHelper.SetupItem(actorData, true);
+	//const actorData = { type: CONFIG.worldofdarkness.sheettype[splat] || splat, system: actor.system };
+	//context.listData = SelectHelper.SetupItem(actorData, true);
+	context.listData = SelectHelper.SetupItem(actor, true);
 
   	return context;
 }
@@ -1033,6 +1113,12 @@ export const prepareStatContext = async function (context, actor) {
 
 	context.health = await calculateHealth(actor, CONFIG.worldofdarkness.sheettype.mortal);
 
+	context.chimericalhealth = undefined;
+
+	if (actor.system.settings.usechimerical) {
+		context.chimericalhealth = await calculateHealth(actor, CONFIG.worldofdarkness.sheettype.changeling);
+	}
+
   	return context
 }
 
@@ -1049,6 +1135,7 @@ export const preparePowersContext = async function (context, actor) {
 
 	// Core power categories
 	context.disciplines = ItemHelper.GetPowersByType(actor, "wod.types.discipline", true);
+	context.arts = ItemHelper.GetPowersByType(actor, "wod.types.art", true);
 	
 	context.combinations = ItemHelper.GetPowersByType(actor, "wod.types.combination", true);
 	context.rituals = ItemHelper.GetPowersByType(actor, "wod.types.ritual", true);
@@ -1060,8 +1147,11 @@ export const preparePowersContext = async function (context, actor) {
 
 	// Unsorted powers (no parent or missing parent reference)
 	const disciplinePowers = ItemHelper.GetPowersByType(actor, "wod.types.disciplinepower");
+	const artPowers = ItemHelper.GetPowersByType(actor, "wod.types.artpower");
 	const numinaPowers = ItemHelper.GetPowersByType(actor, "wod.types.numinapower");
+
 	context.unsorteddisciplines = disciplinePowers.filter(power => lacksParent(power, context.disciplines));
+	context.unsortedarts = artPowers.filter(power => lacksParent(power, context.arts));
 	context.unsortednuminas = numinaPowers.filter(power => lacksParent(power, context.numinas));
 
 	// Gifts grouped by rank
@@ -1082,6 +1172,10 @@ export const preparePowersContext = async function (context, actor) {
 	// Spheres
 	context.spheres = actor.items.filter(item => item.type === "Sphere" && item.system.settings.isvisible);
 	context.spheres = context.spheres.sort((a, b) => Number(a.system.settings.order) - Number(b.system.settings.order));
+
+	// Realms
+	context.realms = actor.items.filter(item => item.type === "Realm" && item.system.settings.isvisible);
+	context.realms = context.realms.sort((a, b) => Number(a.system.settings.order) - Number(b.system.settings.order));
 
 	context.powerSections = ItemHelper.BuildPowerSections(actor, context, splat, CONFIG.worldofdarkness.sheetv2.power || {});
 	context.splat = splat;
@@ -1261,6 +1355,10 @@ export const prepareSettingsContext = async function (context, actor) {
 	// Spheres
 	context.spheres = actor.items.filter(item => item.type === "Sphere");
 	context.spheres = context.spheres.sort((a, b) => Number(a.system.settings.order) - Number(b.system.settings.order));
+
+	// Realms
+	context.realms = actor.items.filter(item => item.type === "Realm");
+	context.realms = context.realms.sort((a, b) => Number(a.system.settings.order) - Number(b.system.settings.order));
 
 	// Get listData for bio select fields - same pattern as legacy templates (bio_mage_background.html)
 	// Pass actor directly to SetupItem so functions that need actor data (custom handling) work correctly

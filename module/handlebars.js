@@ -52,45 +52,6 @@ export const registerHandlebarsHelpers = function () {
 		return ret;
 	});
 
-	// Handlebars.registerHelper("iff", function (a, operator, b, opts) {
-	// 	var bool = false;
-	// 	switch (operator) {
-	// 		case "==":
-	// 			bool = a == b;
-	// 			break;
-	// 		case ">":
-	// 			bool = a > b;
-	// 			break;
-	// 		case "<":
-	// 			bool = a < b;
-	// 			break;
-	// 		case ">=":
-	// 			bool = parseInt(a) >= parseInt(b);
-	// 			break;
-	// 		case "<=":
-	// 			bool = a <= b;
-	// 			break;
-	// 		case "!=":
-	// 			bool = a != b;
-	// 			break;
-	// 		case "contains":
-	// 			if (a && b) {
-	// 				bool = a.includes(b);
-	// 			} else {
-	// 				bool = false;
-	// 			}
-	// 			break;
-	// 		default:
-	// 		throw "Unknown operator " + operator;
-	// 	}
-
-	// 	if (bool) {
-	// 		return opts.fn(this);
-	// 	} else {
-	// 		return opts.inverse(this);
-	// 	}
-	// });
-
 	Handlebars.registerHelper('eqAny', function () {
 		for(let i = 1; i < arguments.length; i++) {
 		  	if(arguments[0] === arguments[i]) {
@@ -252,13 +213,29 @@ export const registerHandlebarsHelpers = function () {
 			return value;
 		}
 
-		let returnvalue = game.i18n.localize(listData[listname]?.find(i => i.value === value)?.label ?? "");
-
-		if ((returnvalue == "") && (value != "")) {
+		const entry = listData?.[listname];
+		if (entry == null) {
 			return value;
 		}
 
-		return  returnvalue;
+		// v2 / sphere-style lists: array of { value, label }
+		if (Array.isArray(entry)) {
+			let returnvalue = game.i18n.localize(entry.find((i) => i.value === value)?.label ?? "");
+			if (returnvalue === "" && value !== "") {
+				return value;
+			}
+			return returnvalue;
+		}
+
+		// Werewolf / Fera `selectOptions` option maps: { "": placeholder, [valueKey]: localizedLabel, ... }
+		if (typeof entry === "object") {
+			const mapped = entry[value];
+			if (mapped !== undefined && mapped !== null && mapped !== "") {
+				return mapped;
+			}
+		}
+
+		return value !== "" ? value : "";
 	});	
 
 	/* get advantages box mainly used on Core (application v1) */
@@ -383,12 +360,13 @@ export const registerHandlebarsHelpers = function () {
 		let html = "";
 		let permanent_html = "";
 		let temporary_html = "";
-		//let stat_headline_text = game.i18n.localize(`wod.advantages.${statname}`);
 		let stat_headline_text = game.i18n.localize(statname);
 		let rollable = "";
 		let rollaction = "";
 		let splat = CONFIG.worldofdarkness.sheettype.mortal;	
 		let splat_temporary = CONFIG.worldofdarkness.sheettype.mortal;	
+
+		let rankname = "";
 
 		if (isrollable) {
 			rollable = " vrollable";
@@ -401,18 +379,14 @@ export const registerHandlebarsHelpers = function () {
 		}
 
 		// wereweolf and shifter renown
-		if ((statid == "glory") || (statid == "honor") || (statid == "wisdom")) {
+		if (stat.system.group == "renown") {
 			splat = CONFIG.worldofdarkness.sheettype.werewolf;
-			if (actor.type == "PC") {
-				stat_headline_text = game.i18n.localize(actor.GetShifterRenownName(actor.system.bio.splatfields.tribe.value, statid));
-			}
-			else if (actor.type == CONFIG.worldofdarkness.sheettype.werewolf) {
-				stat_headline_text = game.i18n.localize(actor.GetShifterRenownName(actor.system.tribe, statid));
-			}
-			else {
-				stat_headline_text = game.i18n.localize(actor.GetShifterRenownName(actor.system.changingbreed, statid));
-			}
-		}		
+			stat_headline_text = game.i18n.localize(statname);
+
+			if (stat.system.id == "rank") {
+				rankname = `<span class="splatFont">${actor.GetShifterRank()}</span>`;
+			}			
+		}
 
 		if (showbanner) {
 			html += `<div class="sheet-headline sheet-banner-small splatFont ${rollable}" data-type="${splat}" data-key="${statid}" data-noability="true" ${rollaction}><span class="sheet-banner-text">${stat_headline_text}</span></div>`;	
@@ -425,8 +399,10 @@ export const registerHandlebarsHelpers = function () {
 			let header = `<div class="sheet-boxcontainer ${statid}"><div class="resource-value permValueRow" data-itemid="${stat._id}" data-key="${statid}" data-value="${stat.system.permanent}" data-name="system.permanent">`;
 			let footer = `</div></div>`;
 
+			
+
 			for (let value = 0; value <= stat.system.max - 1; value++) {
-				if ((actor.system.settings.splat == CONFIG.worldofdarkness.splat.changeling) && (statname == "willpower")) {
+				if ((actor.system.settings.splat == CONFIG.worldofdarkness.splat.changeling) && (statid == "willpower")) {
 					let imbalance = "";
 					let imbalance_title_text = "";
 
@@ -437,14 +413,14 @@ export const registerHandlebarsHelpers = function () {
 						imbalance_title_text = game.i18n.localize(`wod.advantages.imbalance`);
 					}
 
-					permanent_html += `<span class="resource-value-step ${imbalance}" title="${imbalance_title_text}" data-action="editDot" data-type="${splat}" data-index="${value}"></span>`;
+					permanent_html += `<span class="resource-value-step ${imbalance}" title="${imbalance_title_text}" data-itemid="${stat._id}" data-action="editDot" data-type="${splat}" data-index="${value}"></span>`;
 				}
 				else {
 					permanent_html += `<span class="resource-value-step" data-action="editDot" data-type="${splat}" data-index="${value}"></span>`;
 				}
 			}
 					
-			permanent_html = header + permanent_html + footer;
+			permanent_html = header + permanent_html + rankname + footer;
 		}		
 
 		if (istemporary) {
@@ -1450,8 +1426,9 @@ export const registerHandlebarsHelpers = function () {
 		return "";
 	});
 
-	Handlebars.registerHelper("getInjuredLevel", function (type, health) {
-		let totalDamage = health.damage.bashing + health.damage.lethal + health.damage.aggravated;
+	Handlebars.registerHelper("getInjuredLevel", function (type, health, damage) {
+		//let totalDamage = health.damage.bashing + health.damage.lethal + health.damage.aggravated;
+		let totalDamage = damage.bashing + damage.lethal + damage.aggravated;
 		if (totalDamage == 0) return game.i18n.localize("wod.health.uninjured");
 
 		totalDamage = totalDamage - health.bruised.total;
@@ -1476,7 +1453,8 @@ export const registerHandlebarsHelpers = function () {
 			return game.i18n.localize("wod.health.incapacitated");
 		}
 
-		totalDamage = totalDamage - health.damage.bashing;
+		//totalDamage = totalDamage - health.damage.bashing;
+		totalDamage = totalDamage - damage.bashing;
 		
 		if (totalDamage <= 1) return game.i18n.localize("wod.health.incapacitated");
 		if (totalDamage == 2) return game.i18n.localize("wod.health.broken");
@@ -1764,6 +1742,10 @@ export const registerHandlebarsHelpers = function () {
 			return CONFIG.worldofdarkness.wererwolfrageSettings;
 		}		
 
+		if (text == "virtuesLimit") {
+			return CONFIG.worldofdarkness.virtuesLimit;
+		}
+
 		if (text == "viewBiotabPermission") {
 			if (game.user.isGM) {
 				return "full";
@@ -1854,18 +1836,18 @@ export const registerHandlebarsHelpers = function () {
 		}
 	});
 
-	Handlebars.registerHelper("calculateHight", function (area, list) {
-		if (area == "rotes") {
-			if (list.length < 26) {
-				return "max-height: 350px";
-			}
-			else {
-				const height = Math.ceil(350 / 25 *list.length);
+	// Handlebars.registerHelper("calculateHight", function (area, list) {
+	// 	if (area == "rotes") {
+	// 		if (list.length < 26) {
+	// 			return "max-height: 350px";
+	// 		}
+	// 		else {
+	// 			const height = Math.ceil(350 / 25 *list.length);
 
-				return "max-height: " + height + "px";
-			}
-		}
-	});
+	// 			return "max-height: " + height + "px";
+	// 		}
+	// 	}
+	// });
 
 	function getAttributes(attribute) {
 		let list;
