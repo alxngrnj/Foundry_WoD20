@@ -1196,13 +1196,10 @@ export default class DropHelper {
             }
         }
 
-        if (item !== undefined) {
-            console.warn(`WoD | Installing Splat | Ability ${ability.name} not found in compendium.`);
-            return false;
-        }
-
         // if still not found create a blank new one.
         if (mergedData === undefined) {
+            console.warn(`WoD | Installing Splat | Ability ${ability.name} not found in compendium.`);
+
             if (!ability.system.settings.alwaysspeciality) {
                 ability.system.settings.alwaysspeciality = (CONFIG.worldofdarkness.alwaysspeciality?.[actor.system.settings.game] ?? []).includes(ability.system.id);
             }
