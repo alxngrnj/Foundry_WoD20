@@ -1492,22 +1492,23 @@ export const registerHandlebarsHelpers = function () {
 	Handlebars.registerHelper("quintessenceWheel_v2", function (quintessence, paradox, index) {
 		let state = "";
 
-		if ((quintessence == undefined) || (paradox == undefined)) {
+		if (quintessence == undefined) {
 			return state;
 		}
 
+		const max = parseInt(quintessence.system.max) || 20;
 		const square = index + 1;
 
+		if (paradox != undefined) {
+			if ((paradox.system.permanent > 0) && (max - paradox.system.permanent  < square)) {
+				state = "*";
+				return state;
+			}
 
-
-		if ((paradox.system.permanent > 0) && (20 - paradox.system.permanent  < square)) {
-			state = "*";
-			return state;
-		}
-
-		if ((paradox.system.temporary > 0) && (20 - (paradox.system.permanent + paradox.system.temporary) < square)) {
-			state = "x";
-			return state;
+			if ((paradox.system.temporary > 0) && (max - (paradox.system.permanent + paradox.system.temporary) < square)) {
+				state = "x";
+				return state;
+			}
 		}
 
 		if ((quintessence.system.temporary > 0) && (square <= quintessence.system.temporary))  {

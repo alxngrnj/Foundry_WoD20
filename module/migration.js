@@ -2821,6 +2821,13 @@ export  const updates = async () => {
     if (newfunctions == "") {
         newfunctions += 'Issues fixed in version:<br />';        
 
+        if (_compareVersion(installedVersion, '7.1.3')) {
+             newfunctions += '<li>[MtA] Fixed issue with the quintessence and paradox advantage on PC actors. It now reads the set label of quintessence and paradox, so if it is renamed this is visible on the sheet.</li>';
+             newfunctions += '<li>[MtA] Fixed issue with the quintessence advantage on PC actors. If you had set the number of boxes less than 20 on quintessence it broke.</li>';
+             newfunctions += '<li>[MtA] Updated the sorcerer template in the compendium for PC actors giving it the new version of quintessence which as with the quintessence for mages also is in a circle. This only effects new sorcerers.</li>';
+             newfunctions += '<li>[WtA] Fixed problem that caused issues with adding Nuwisha template to a PC actor.</li>';
+        }
+
         if (_compareVersion(installedVersion, '7.1.2')) {
              newfunctions += '<li>Graphical error with a white backdrop in chat if using dark mode. <a href="https://github.com/JohanFalt/Foundry_WoD20/issues/1413">[#1413]</a></li>';
              newfunctions += '<li>[VtM] One skill was not added correctly if using the historic vampire templates. <a href="https://github.com/JohanFalt/Foundry_WoD20/issues/1414">[#1414]</a></li>';

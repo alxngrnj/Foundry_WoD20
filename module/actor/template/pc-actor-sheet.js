@@ -888,7 +888,12 @@ export default class PCActorSheet extends HandlebarsApplicationMixin(foundry.app
 	_bindQuintessenceContextMenu(root) {
 		if (this.actor.system.settings.splat !== CONFIG.worldofdarkness.splat.mage) return;
 
-		const wheelElements = root.querySelectorAll?.(".quintessence > .resource-counter > .resource-value-step");
+		const hasParadox = this.actor.items.some(
+			item => item.type === "Advantage" && item.system.id === "paradox"
+		);
+		if (!hasParadox) return;
+
+		const wheelElements = root.querySelectorAll?.(".quintessence-wheel .wheel-step");
 		if (!wheelElements?.length) return;
 		
 		wheelElements.forEach(el => {
@@ -1053,6 +1058,8 @@ export const prepareStatContext = async function (context, actor) {
 	context.showVirtues = false;
 	context.showRenowns = false;
 	context.showQuintessences = false;	
+	context.showParadox = false;
+
 	if (actor.system.settings.hasvirtue) {
 
 		context.virtues = actor.items
@@ -1075,6 +1082,9 @@ export const prepareStatContext = async function (context, actor) {
 								.filter(item => item.type === "Advantage" && item.system.group === 'quintessence' && item.system.settings.isvisible)
 								.map(item => ({ _id: item._id, ...item }));
 		context.showQuintessences = context.quintessences.length > 0;
+		context.showParadox = actor.items
+								.filter(item => item.type === "Advantage" && item.system.id === 'paradox' && item.system.settings.isvisible)
+								.map(item => ({ _id: item._id, ...item })).length > 0;
 	}
 
 	// Find all grouped advantages beyond virtue, renown, and quintessence

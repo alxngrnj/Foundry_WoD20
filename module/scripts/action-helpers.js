@@ -1236,6 +1236,10 @@ export const OnRemoveSplat = async function (event, target) {
 	this.render();
 }
 
+export function getQuintessencePoolMax(quintessence, paradox) {
+	return parseInt(quintessence?.system?.max ?? paradox?.system?.max ?? 20);
+}
+
 // Adds or remove a value (always number) from an existing one
 export const OnQuintessenceHandling = async function (event, target) {
 	event.preventDefault();
@@ -1261,13 +1265,18 @@ export const OnQuintessenceHandling = async function (event, target) {
 
 		if (paradox.length > 0) {
 			paradox = paradox[0];
+			const poolMax = getQuintessencePoolMax(item, paradox);
 
-			if ((parseInt(itemData.system.temporary) + parseInt(paradox.system.temporary) + parseInt(paradox.system.permanent)) > 20) {
+			if ((parseInt(itemData.system.temporary) + parseInt(paradox.system.temporary) + parseInt(paradox.system.permanent)) > poolMax) {
 				return;
 			}
 		}
-		else if (parseInt(itemData.system.temporary) > 20) {
-			return;
+		else {
+			const poolMax = getQuintessencePoolMax(item, null);
+
+			if (parseInt(itemData.system.temporary) > poolMax) {
+				return;
+			}
 		}	
 	}
 	if (item.system.id === "paradox") {
@@ -1275,11 +1284,12 @@ export const OnQuintessenceHandling = async function (event, target) {
 
 		if (quintessence.length > 0) {
 			quintessence = quintessence[0];
+			const poolMax = getQuintessencePoolMax(quintessence, item);
 
-			if (((parseInt(itemData.system.temporary) + parseInt(itemData.system.permanent) + parseInt(quintessence.system.temporary)) > 20)) {
+			if (((parseInt(itemData.system.temporary) + parseInt(itemData.system.permanent) + parseInt(quintessence.system.temporary)) > poolMax)) {
 				const quintessenceData = foundry.utils.duplicate(quintessence);
 
-				const overflowValue = parseInt(itemData.system.temporary) + parseInt(itemData.system.permanent) + parseInt(quintessence.system.temporary) - 20;
+				const overflowValue = parseInt(itemData.system.temporary) + parseInt(itemData.system.permanent) + parseInt(quintessence.system.temporary) - poolMax;
 
 				if (parseInt(quintessence.system.temporary) >= overflowValue) {
 					quintessenceData.system.temporary -= overflowValue;
@@ -1290,8 +1300,12 @@ export const OnQuintessenceHandling = async function (event, target) {
 				}				
 			}
 		}
-		else if ((parseInt(itemData.system.temporary) + parseInt(itemData.system.permanent)) > 20) {
-			return;
+		else {
+			const poolMax = getQuintessencePoolMax(null, item);
+
+			if ((parseInt(itemData.system.temporary) + parseInt(itemData.system.permanent)) > poolMax) {
+				return;
+			}
 		}		
 	}
 
@@ -1313,15 +1327,17 @@ export const OnQuintessenceWheelClick = async function (event, target) {
 	const paradoxId = target.dataset.paradoxid;
 	
 	const quintessence = this.actor.items.get(quintessenceId);
-	const paradox = this.actor.items.get(paradoxId);
-	
-	if (!quintessence || !paradox) return;
-	
+	if (!quintessence) return;
+
+	const paradox = paradoxId ? this.actor.items.get(paradoxId) : null;
+	const poolMax = getQuintessencePoolMax(quintessence, paradox);
+
 	const result = calculateQuintessenceChange(
 		oldState,
 		parseInt(quintessence.system.temporary),
-		parseInt(paradox.system.temporary),
-		parseInt(paradox.system.permanent)
+		paradox ? parseInt(paradox.system.temporary) : 0,
+		paradox ? parseInt(paradox.system.permanent) : 0,
+		poolMax
 	);
 	
 	if (result && result.quintessenceTemporary !== undefined) {
@@ -1346,11 +1362,14 @@ export const OnParadoxWheelClick = async function (event, target) {
 	
 	if (!quintessence || !paradox) return;
 	
+	const poolMax = getQuintessencePoolMax(quintessence, paradox);
+
 	const result = calculateParadoxChange(
 		oldState,
 		parseInt(quintessence.system.temporary),
 		parseInt(paradox.system.temporary),
-		parseInt(paradox.system.permanent)
+		parseInt(paradox.system.permanent),
+		poolMax
 	);
 	
 	if (result) {
@@ -1371,11 +1390,11 @@ export const OnParadoxWheelClick = async function (event, target) {
 
 // Shared logic for calculating quintessence wheel changes
 // Returns { quintessenceTemporary } or null if no change
-export function calculateQuintessenceChange(oldState, quintessenceTemporary, paradoxTemporary, paradoxPermanent) {
+export function calculateQuintessenceChange(oldState, quintessenceTemporary, paradoxTemporary, paradoxPermanent, max = 20) {
 	const total = quintessenceTemporary + paradoxTemporary + paradoxPermanent;
 	
 	if (oldState === "") {
-		if (total < 20) {
+		if (total < max) {
 			return { quintessenceTemporary: quintessenceTemporary + 1 };
 		}
 	}
@@ -1390,17 +1409,17 @@ export function calculateQuintessenceChange(oldState, quintessenceTemporary, par
 
 // Shared logic for calculating paradox wheel changes
 // Returns { quintessenceTemporary, paradoxTemporary } or null if no change
-export function calculateParadoxChange(oldState, quintessenceTemporary, paradoxTemporary, paradoxPermanent) {
+export function calculateParadoxChange(oldState, quintessenceTemporary, paradoxTemporary, paradoxPermanent, max = 20) {
 	let effectiveState = oldState;
 	const total = quintessenceTemporary + paradoxTemporary + paradoxPermanent;
 	
 	// Check if we need to consume quintessence first
-	if (effectiveState === "" && (total + 1) > 20) {
+	if (effectiveState === "" && (total + 1) > max) {
 		effectiveState = "Ψ";
 	}
 	
 	if (effectiveState === "") {
-		if (paradoxTemporary + paradoxPermanent < 20) {
+		if (paradoxTemporary + paradoxPermanent < max) {
 			return { paradoxTemporary: paradoxTemporary + 1 };
 		}
 	}
@@ -1412,8 +1431,8 @@ export function calculateParadoxChange(oldState, quintessenceTemporary, paradoxT
 	else if (effectiveState === "*") {
 		return null; // Can't change permanent
 	}
-	else if (effectiveState === "Ψ" && (total + 1) > 20) {
-		if (paradoxTemporary + paradoxPermanent < 20) {
+	else if (effectiveState === "Ψ" && (total + 1) > max) {
+		if (paradoxTemporary + paradoxPermanent < max) {
 			return { 
 				quintessenceTemporary: quintessenceTemporary - 1,
 				paradoxTemporary: paradoxTemporary + 1

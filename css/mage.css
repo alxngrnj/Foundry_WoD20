@@ -151,7 +151,8 @@
 }
   
 /* quintessence */
-.quintessence .resource-counter .resource-value-step[data-state="Ψ"] {
+.quintessence .resource-counter .resource-value-step[data-state="Ψ"],
+.quintessence-wheel .wheel-step[data-state="Ψ"] {
     background: url('../assets/img/mage/prime.svg');
     background-repeat: no-repeat;
     background-size: contain;
@@ -159,7 +160,8 @@
   }
   
 /* paradox */
-.quintessence .resource-counter .resource-value-step[data-state="x"] {
+.quintessence .resource-counter .resource-value-step[data-state="x"],
+.quintessence-wheel .wheel-step[data-state="x"] {
   background:
     linear-gradient(
       45deg,
@@ -183,7 +185,8 @@
 }
 
 /* perm paradox */
-.quintessence .resource-counter .resource-value-step[data-state="*"] {
+.quintessence .resource-counter .resource-value-step[data-state="*"],
+.quintessence-wheel .wheel-step[data-state="*"] {
   background:
     linear-gradient(
       45deg,
@@ -212,8 +215,37 @@
 }
 
 /* WHEEL START */
-span.quintessence {
+span.quintessence:not(.wheel-step) {
   position: relative;
+}
+
+/* PC Actor dynamic quintessence wheel */
+.quintessence-wheel {
+  --start-angle: -90deg;
+  --radius: calc(28px + (var(--count) - 3) * 2.5px);
+  position: relative;
+  width: 150px;
+  height: 150px;
+  margin: 0 auto;
+}
+
+.quintessence-wheel .wheel-step {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  margin-top: -7px;
+  border: 1px solid #121212;
+  display: block;
+  cursor: pointer;
+  background: #ffffff;
+  box-sizing: border-box;
+  z-index: 1;
+  transform:
+    rotate(calc(var(--start-angle) + var(--index) * 360deg / var(--count)))
+    translateY(calc(-1 * var(--radius)));
 }
 
 .wheel-0:not(.noSplatFont) {

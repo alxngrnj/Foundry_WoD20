@@ -341,6 +341,57 @@ export class WoDActor extends Actor {
                 }
             }
 
+            const quintessenceAdv = advantages.find(a => a.system.id === "quintessence");
+            const paradoxAdv = advantages.find(a => a.system.id === "paradox");
+
+            if (quintessenceAdv) {
+                const poolMax = parseInt(quintessenceAdv.system.max) || 20;
+
+                if (paradoxAdv && paradoxAdv.system.max != poolMax) {
+                    itemList.push({
+                        _id: paradoxAdv._id,
+                        "system.max": poolMax
+                    });
+                    actorData.system.advantages.paradox.system.max = poolMax;
+                }
+
+                if (paradoxAdv) {
+                    const qTemp = parseInt(actorData.system.advantages.quintessence?.system?.temporary ?? 0);
+                    const pTemp = parseInt(actorData.system.advantages.paradox?.system?.temporary ?? 0);
+                    const pPerm = parseInt(actorData.system.advantages.paradox?.system?.permanent ?? 0);
+                    let total = qTemp + pTemp + pPerm;
+
+                    if (total > poolMax) {
+                        let overflow = total - poolMax;
+                        let newQTemp = qTemp;
+                        let newPTemp = pTemp;
+
+                        const qReduction = Math.min(overflow, newQTemp);
+                        newQTemp -= qReduction;
+                        overflow -= qReduction;
+
+                        if (overflow > 0) {
+                            newPTemp -= Math.min(overflow, newPTemp);
+                        }
+
+                        if (newQTemp !== qTemp) {
+                            itemList.push({
+                                _id: quintessenceAdv._id,
+                                "system.temporary": newQTemp
+                            });
+                            actorData.system.advantages.quintessence.system.temporary = newQTemp;
+                        }
+                        if (newPTemp !== pTemp) {
+                            itemList.push({
+                                _id: paradoxAdv._id,
+                                "system.temporary": newPTemp
+                            });
+                            actorData.system.advantages.paradox.system.temporary = newPTemp;
+                        }
+                    }
+                }
+            }
+
             traitMax = parseInt(actorData.system.settings.powers.defaultmaxvalue);
 
             for (const sphere of spheres) {

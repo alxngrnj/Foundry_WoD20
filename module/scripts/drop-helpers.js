@@ -1061,9 +1061,18 @@ export default class DropHelper {
         // if not found look into the world for the Item.
         if (mergedData === undefined) {
             const item = await game.items.find(e => e.uuid === advantage.uuid);
-            const loadedData = foundry.utils.duplicate(item);
 
-            mergedData = this.PopulateAdvantage(loadedData, advantage);
+            if (item !== undefined) {
+                const loadedData = foundry.utils.duplicate(item);
+                mergedData = this.PopulateAdvantage(loadedData, advantage);
+            }            
+        }
+
+        // if not in world use what you got
+        if (mergedData === undefined) {
+            console.warn(`WoD | Installing Splat | Advantage ${advantage.name} not found in compendium or world.`);
+
+            mergedData = this.PopulateAdvantage(advantage, advantage);
         }
 
         return mergedData;
@@ -1091,7 +1100,7 @@ export default class DropHelper {
 
             const item = await this.GetCompendiumItem(packid, feature.uuid);
 
-            if (item !== false) {
+            if (item !== undefined) {
                 const loadedData = foundry.utils.duplicate(item);
                 mergedData =this.PopulateFeature(loadedData, feature);
             }
@@ -1100,21 +1109,23 @@ export default class DropHelper {
         // if not found look into the world for the Item.
         if (mergedData === undefined) {
             const item = await game.items.find(e => e.uuid === feature.uuid);
-            const loadedData = foundry.utils.duplicate(item);
 
-            mergedData = this.PopulateFeature(loadedData, feature);
+            if (item !== undefined) {
+                const loadedData = foundry.utils.duplicate(item);
+                mergedData = this.PopulateFeature(loadedData, feature);
+            }
+        }
+
+        // if not in world use what you got
+        if (mergedData === undefined) {
+            console.warn(`WoD | Installing Splat | Feature ${feature.name} not found in compendium or world.`);
+            mergedData = this.PopulateFeature(feature, feature);
         }
 
         return mergedData;
     }
 
     static async ImportPower(actor, power) {
-        // if (actor.system.power[power.system.id] !== undefined) {
-        //     // TODO: finns redan
-        //     console.log(`Installing Splat | Power ${power.name} already exists.`);
-
-        //     return false;
-        // }
         if (power.uuid) {
             const existingFeature = actor.items.find(i => 
                 i.type === power.type && 
@@ -1144,9 +1155,17 @@ export default class DropHelper {
         // if not found look into the world for the Item.
         if (mergedData === undefined) {
             const item = await game.items.find(e => e.uuid === power.uuid);
-            const loadedData = foundry.utils.duplicate(item);
 
-            mergedData = this.PopulatePower(loadedData, power);
+            if (item !== undefined) {
+                const loadedData = foundry.utils.duplicate(item);
+                mergedData = this.PopulatePower(loadedData, power);
+            }
+        }
+
+        // if not in world use what you got
+        if (mergedData === undefined) {
+            console.warn(`WoD | Installing Splat | Power ${power.name} not found in compendium or world.`);
+            mergedData = this.PopulatePower(power, power);
         }
 
         return mergedData;
